@@ -1,0 +1,36 @@
+{
+    "$schema": "./mfdevice.schema.json",
+    "Info": {
+      "Label": "Mobiflight's template",
+      "Type": "MOBIFLIGHT_TEMPLATE2",
+      "Author": "Mobiflight",
+      "URL": "https://github.com",
+      "Version" : "1.0.0"
+    },
+    "Config": {
+      "Pins": [
+        "Pin 1",
+        "Pin 2",
+        "Pin 3"
+      ],
+      "isI2C": false
+    },
+    "MessageTypes": [
+      {
+        "id": 0,
+        "label": "Show Speed Value",
+        "description": "$ will be displayed as Speed value"
+      },
+      {
+        "id": 1,
+        "label": "Show Heading Value",
+        "description": "$ will be displayed as Heading value"
+      },
+      {
+        "id": 2,
+        "label": "Show AP On/Off",
+        "description": "0 = True, 1 = False"
+      }
+    ]
+  }
+  
