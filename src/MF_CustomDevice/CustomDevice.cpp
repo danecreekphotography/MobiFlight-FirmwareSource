@@ -103,4 +103,13 @@ namespace CustomDevice
         }
     }
 
+    /* **********************************************************************************
+        This function is called after startup to inform the connector
+        about custom input devices.
+    ********************************************************************************** */
+    void GetConfig()
+    {
+        MFCustomDeviceGetConfig();
+    }
+
 } // end of namespace

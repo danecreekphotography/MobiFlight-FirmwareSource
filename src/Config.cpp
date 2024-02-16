@@ -540,6 +540,11 @@ void OnGetConfig()
             cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG + i));
         }
     }
+#if MF_CUSTOMDEVICE_SUPPORT == 1
+    if (configLength == 0)
+        cmdMessenger.sendCmdArg(":");
+    CustomDevice::GetConfig();
+#endif
     cmdMessenger.sendCmdEnd();
 }
 

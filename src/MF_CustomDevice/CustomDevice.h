@@ -8,4 +8,5 @@ namespace CustomDevice
     void update();
     void OnSet();
     void PowerSave(bool state);
+    void GetConfig();
 }
