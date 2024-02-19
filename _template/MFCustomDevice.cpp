@@ -13,13 +13,9 @@ extern MFEEPROM MFeeprom;
 ********************************************************************************** */
 void MFCustomDeviceGetConfig()
 {
-    if (pgm_read_byte_near(CustomDeviceConfig) == 0) {
-        cmdMessenger.sendCmdArg(":");
-    } else {
-        cmdMessenger.sendCmdArg((char)pgm_read_byte_near(CustomDeviceConfig));
-        for (uint16_t i = 1; i < sizeof(CustomDeviceConfig) - 1; i++) {
-            cmdMessenger.sendArg((char)pgm_read_byte_near(CustomDeviceConfig + i));
-        }
+    cmdMessenger.sendCmdArg((char)pgm_read_byte_near(CustomDeviceConfig));
+    for (uint16_t i = 1; i < sizeof(CustomDeviceConfig) - 1; i++) {
+        cmdMessenger.sendArg((char)pgm_read_byte_near(CustomDeviceConfig + i));
     }
 }
 
