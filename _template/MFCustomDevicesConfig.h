@@ -2,6 +2,10 @@
 
 #include <Arduino.h>
 
+// If no input custom deivece is defined, uncomment the following line
+// const char CustomDeviceConfig[] PROGMEM = {""};
+
+// Otherwise define your input custom devices
 const char CustomDeviceConfig[] PROGMEM = 
 {
     "1.2.Button Flash:"

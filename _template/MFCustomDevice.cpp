@@ -9,13 +9,18 @@ extern MFEEPROM MFeeprom;
     This function is called after startup to inform the connector
     about custom input devices.
     Send back your input devices which are required for ALL Custom Decices
+    The devices are defined in MFCustomDevicesConfig.h
 ********************************************************************************** */
 void MFCustomDeviceGetConfig()
 {
-    if (sizeof(CustomDeviceConfig) == 0)
-        return;
-    for (uint16_t i = 0; i < sizeof(CustomDeviceConfig) - 1; i++)
-        cmdMessenger.sendArg((char)pgm_read_byte_near(CustomDeviceConfig + i));
+    if (pgm_read_byte_near(CustomDeviceConfig) == 0) {
+        cmdMessenger.sendCmdArg(":");
+    } else {
+        cmdMessenger.sendCmdArg((char)pgm_read_byte_near(CustomDeviceConfig));
+        for (uint16_t i = 1; i < sizeof(CustomDeviceConfig) - 1; i++) {
+            cmdMessenger.sendArg((char)pgm_read_byte_near(CustomDeviceConfig + i));
+        }
+    }
 }
 
 /* **********************************************************************************
