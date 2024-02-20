@@ -533,14 +533,15 @@ void readConfig()
 
 void OnGetConfig()
 {
+    bool hasConfig = false;
     cmdMessenger.sendCmdStart(kInfo);
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    CustomDevice::GetConfig();
-#else
-    cmdMessenger.sendCmdArg(":");
+    hasConfig = CustomDevice::GetConfig();
 #endif
     if (configLength > 0) {
-        for (uint16_t i = 0; i < configLength; i++) {
+        if (!hasConfig)
+            cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
+        for (uint16_t i = 1; i < configLength; i++) {
             cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG + i));
         }
     }
