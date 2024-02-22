@@ -104,12 +104,55 @@ namespace CustomDevice
     }
 
     /* **********************************************************************************
-        This function is called after startup to inform the connector
+        These functions are called after startup to inform the connector
         about custom input devices.
     ********************************************************************************** */
-    void GetConfig()
+    bool GetConfig()
     {
-        MFCustomDeviceGetConfig();
+        uint8_t* CustomDeviceConfig = MFCustomDeviceGetConfig();
+        uint8_t readBytefromFlash = pgm_read_byte_near(CustomDeviceConfig++);
+
+        if (readBytefromFlash == 0)
+            return false;
+        cmdMessenger.sendCmdArg((char)readBytefromFlash);
+        readBytefromFlash = pgm_read_byte_near(CustomDeviceConfig++);
+        do {
+            cmdMessenger.sendArg((char)readBytefromFlash);
+            readBytefromFlash = pgm_read_byte_near(CustomDeviceConfig++);
+        } while (readBytefromFlash != 0);
+
+        return true;
+    }
+
+    // reads an ascii value which is '.' terminated from Flash and returns it's value
+    uint8_t readUintFromFlash(uint8_t *addrflash)
+    {
+        char    params[4] = {0}; // max 3 (255) digits NULL terminated
+        uint8_t counter   = 0;
+        do {
+            params[counter++] = (char)pgm_read_byte_near(addrflash++);
+            if (params[counter - 1] == 0)
+                return 0;
+        } while (params[counter - 1] != '.' && counter < sizeof(params));
+        params[counter - 1] = 0x00;
+        return atoi(params);
+    }
+
+    void GetArraySizes(uint8_t numberDevices[])
+    {
+        uint8_t* addrFlashP = MFCustomDeviceGetConfig();
+        uint8_t  device    = readUintFromFlash(addrFlashP);
+
+        if (device == 0)
+            return;
+
+        do {
+            numberDevices[device]++;
+            while (pgm_read_byte_near(addrFlashP) != ':') {
+                addrFlashP++;
+            }
+            device = readUintFromFlash(++addrFlashP);
+        } while (device);
     }
 
 } // end of namespace

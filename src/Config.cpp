@@ -275,6 +275,10 @@ bool getArraysizes()
         return false;
     }
 
+#if MF_CUSTOMDEVICE_SUPPORT == 1
+    CustomDevice::GetArraySizes(numberDevices);
+#endif
+
     // then call the function to allocate required memory for the arrays of each type
     if (!Button::setupArray(numberDevices[kTypeButton]))
         sendFailureMessage("Button");
@@ -533,14 +537,17 @@ void readConfig()
 
 void OnGetConfig()
 {
+    bool hasConfig = false;
     cmdMessenger.sendCmdStart(kInfo);
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    CustomDevice::GetConfig();
-#else
-    cmdMessenger.sendCmdArg(":");
+    hasConfig = CustomDevice::GetConfig();
 #endif
     if (configLength > 0) {
-        for (uint16_t i = 0; i < configLength; i++) {
+        if (!hasConfig)
+            cmdMessenger.sendCmdArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
+        else
+            cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
+        for (uint16_t i = 1; i < configLength; i++) {
             cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG + i));
         }
     }
