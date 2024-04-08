@@ -69,7 +69,14 @@ namespace CustomDevice
     void update()
     {
         for (int i = 0; i != customDeviceRegistered; i++) {
+#if defined(USE_2ND_CORE)
+            // wait for 2nd core
+            rp2040.fifo.pop();
+            rp2040.fifo.push(FUNCTION_UPDATE);
+            rp2040.fifo.push(i);
+#else
             customDevice[i].update();
+#endif
         }
     }
 
@@ -91,12 +98,13 @@ namespace CustomDevice
         char   *output    = cmdMessenger.readStringArg(); // get the pointer to the new raw string
         cmdMessenger.unescape(output);                    // and unescape the string if escape characters are used
 #if defined(USE_2ND_CORE)
-        while (!rp2040.fifo.available()) {
-            // Just wait for core 1 to be ready
-        }
+        // copy the message, could get be overwritten from the next message while processing on 2nd core
         strncpy(payload, output, SERIAL_RX_BUFFER_SIZE);
+        // wait for 2nd core
         rp2040.fifo.pop();
-        // rp2040.fifo.push((uintptr_t) &customDevice[device].set); // Hmhm, how to get the function pointer to a function from class??
+        // Hmhm, how to get the function pointer to a function from class??
+        // rp2040.fifo.push((uintptr_t) &customDevice[device].set);
+        rp2040.fifo.push(FUNCTION_ONSET);
         rp2040.fifo.push(device);
         rp2040.fifo.push(messageID);
         rp2040.fifo.push((uint32_t)&payload);
@@ -132,24 +140,35 @@ namespace CustomDevice
 ********************************************************************************** */
 void setup1()
 {
-    // Nothing ToDo
+    // send "ready" message to 1st core
+    rp2040.fifo.push(true);
 }
 
 void loop1()
 {
     int32_t device, messageID;
     char   *payload;
-    // send "ready" message to core 0
-    rp2040.fifo.push(true);
+    uint8_t function = 0;
+
     while (1) {
-        if (rp2040.fifo.available() > 2) {
-            // int32_t (*func)(int16_t, char*) = (int32_t(*)(int16_t, char*)) rp2040.fifo.pop();
-            device    = (int16_t)rp2040.fifo.pop();
-            messageID = (int16_t)rp2040.fifo.pop();
-            payload   = (char *)rp2040.fifo.pop();
-            // (*func)(messageID, payload);
-            CustomDevice::customDevice[device].set(messageID, payload);
-            rp2040.fifo.push(true);
+        if (rp2040.fifo.available()) {
+            function = (uint8_t)rp2040.fifo.pop();
+            if (function == FUNCTION_ONSET) {
+                // Hmhm, how to get the function pointer to a function from class??
+                // int32_t (*func)(int16_t, char*) = (int32_t(*)(int16_t, char*)) rp2040.fifo.pop();
+                device    = (int16_t)rp2040.fifo.pop();
+                messageID = (int16_t)rp2040.fifo.pop();
+                payload   = (char *)rp2040.fifo.pop();
+                // (*func)(messageID, payload);
+                CustomDevice::customDevice[device].set(messageID, payload);
+                // send ready for next message to 1st core
+                rp2040.fifo.push(true);
+            } else if (function == FUNCTION_UPDATE) {
+                device = (int16_t)rp2040.fifo.pop();
+                CustomDevice::customDevice[device].update();
+                // send ready for next message to 1st core
+                rp2040.fifo.push(true);
+            }
         }
     }
 }
