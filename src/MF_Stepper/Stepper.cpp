@@ -7,12 +7,21 @@
 #include "mobiflight.h"
 #include "MFStepper.h"
 #include "Stepper.h"
+#if defined(STEPPER_ON_2ND_CORE)
+#include <FreeRTOS.h>
+#endif
 
 namespace Stepper
 {
     MFStepper *steppers;
     uint8_t    steppersRegistered = 0;
     uint8_t    maxSteppers        = 0;
+
+    enum {
+        FUNC_MOVETO = 1,
+        FUNC_ZETZERO,
+        FUNC_SPEEDACCEL
+    };
 
     bool setupArray(uint16_t count)
     {
@@ -61,7 +70,16 @@ namespace Stepper
 
         if (stepper >= steppersRegistered)
             return;
+#if defined(STEPPER_ON_2ND_CORE)
+        // wait for 2nd core
+        rp2040.fifo.pop();
+        rp2040.fifo.push(FUNC_MOVETO);
+        rp2040.fifo.push(stepper);
+        rp2040.fifo.push(newPos);
+        rp2040.fifo.push(false);
+#else
         steppers[stepper].moveTo(newPos);
+#endif
     }
 
     void OnReset()
@@ -79,7 +97,16 @@ namespace Stepper
 
         if (stepper >= steppersRegistered)
             return;
+#if defined(STEPPER_ON_2ND_CORE)
+        // wait for 2nd core
+        rp2040.fifo.pop();
+        rp2040.fifo.push(FUNC_ZETZERO);
+        rp2040.fifo.push(stepper);
+        rp2040.fifo.push(false);
+        rp2040.fifo.push(false);
+#else
         steppers[stepper].setZero();
+#endif
     }
 
     void OnSetSpeedAccel()
@@ -90,15 +117,25 @@ namespace Stepper
 
         if (stepper >= steppersRegistered)
             return;
+#if defined(STEPPER_ON_2ND_CORE)
+        rp2040.fifo.pop(); // wait for 2nd core
+        rp2040.fifo.push(FUNC_SPEEDACCEL);
+        rp2040.fifo.push(stepper);
+        rp2040.fifo.push(maxSpeed);
+        rp2040.fifo.push(maxAccel);
+#else
         steppers[stepper].setMaxSpeed(maxSpeed);
         steppers[stepper].setAcceleration(maxAccel);
+#endif
     }
 
     void update()
     {
+#if !defined(STEPPER_ON_2ND_CORE)
         for (uint8_t i = 0; i < steppersRegistered; i++) {
             steppers[i].update();
         }
+#endif
     }
 
     void PowerSave(bool state)
@@ -109,5 +146,46 @@ namespace Stepper
     }
 
 } // namespace
+
+#if defined(STEPPER_ON_2ND_CORE)
+/* **********************************************************************************
+    This will run the set() function from the custom device on the 2nd core
+    Be aware NOT to use the function calls from the Pico SDK!
+    Only use the functions from the used framework from EarlePhilHower
+    If you mix them up it will give undefined behaviour and strange effects
+    see https://arduino-pico.readthedocs.io/en/latest/multicore.html
+********************************************************************************** */
+void setup1()
+{
+    rp2040.fifo.push(true); // inform core 1 to be ready
+}
+
+void loop1()
+{
+    uint8_t  command = 0;
+    uint32_t stepper, param1, param2;
+
+    while (1) {
+        if (rp2040.fifo.available()) {
+            command = (int16_t)rp2040.fifo.pop();
+            stepper = (int16_t)rp2040.fifo.pop();
+            param1  = (int16_t)rp2040.fifo.pop();
+            param2  = (int16_t)rp2040.fifo.pop();
+            if (command == Stepper::FUNC_MOVETO) {
+                Stepper::steppers[stepper].moveTo(param1);
+            } else if (command == Stepper::FUNC_ZETZERO) {
+                Stepper::steppers[stepper].setZero();
+            } else if (command == Stepper::FUNC_SPEEDACCEL) {
+                Stepper::steppers[stepper].setMaxSpeed(param1);
+                Stepper::steppers[stepper].setAcceleration(param2);
+            }
+            rp2040.fifo.push(true); // inform core 1 to be ready for next command
+        }
+        for (uint8_t i = 0; i < Stepper::steppersRegistered; ++i) {
+            Stepper::steppers[i].update();
+        }
+    }
+}
+#endif
 
 // Stepper.cpp
