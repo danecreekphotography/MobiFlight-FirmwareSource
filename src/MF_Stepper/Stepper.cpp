@@ -16,12 +16,13 @@ namespace Stepper
     MFStepper *steppers;
     uint8_t    steppersRegistered = 0;
     uint8_t    maxSteppers        = 0;
-
+#if defined(STEPPER_ON_2ND_CORE)
     enum {
         FUNC_MOVETO = 1,
         FUNC_ZETZERO,
         FUNC_SPEEDACCEL
     };
+#endif
 
     bool setupArray(uint16_t count)
     {
@@ -166,23 +167,23 @@ void loop1()
     int32_t param1, param2;
 
     while (1) {
-        if (rp2040.fifo.available()) {
-            command = (uint8_t)rp2040.fifo.pop();
-            stepper = (uint8_t)rp2040.fifo.pop();
-            param1  = (int32_t)rp2040.fifo.pop();
-            param2  = (int32_t)rp2040.fifo.pop();
-            if (command == Stepper::FUNC_MOVETO) {
-                Stepper::steppers[stepper].moveTo(param1);
-            } else if (command == Stepper::FUNC_ZETZERO) {
-                Stepper::steppers[stepper].setZero();
-            } else if (command == Stepper::FUNC_SPEEDACCEL) {
-                Stepper::steppers[stepper].setMaxSpeed(param1);
-                Stepper::steppers[stepper].setAcceleration(param2);
-            }
-            rp2040.fifo.push(true); // inform core 1 to be ready for next command
-        }
         for (uint8_t i = 0; i < Stepper::steppersRegistered; ++i) {
             Stepper::steppers[i].update();
+            if (rp2040.fifo.available()) {
+                command = (uint8_t)rp2040.fifo.pop();
+                stepper = (uint8_t)rp2040.fifo.pop();
+                param1  = (int32_t)rp2040.fifo.pop();
+                param2  = (int32_t)rp2040.fifo.pop();
+                if (command == Stepper::FUNC_MOVETO) {
+                    Stepper::steppers[stepper].moveTo(param1);
+                } else if (command == Stepper::FUNC_ZETZERO) {
+                    Stepper::steppers[stepper].setZero();
+                } else if (command == Stepper::FUNC_SPEEDACCEL) {
+                    Stepper::steppers[stepper].setMaxSpeed(param1);
+                    Stepper::steppers[stepper].setAcceleration(param2);
+                }
+                rp2040.fifo.push(true); // inform core 1 to be ready for next command
+            }
         }
     }
 }
