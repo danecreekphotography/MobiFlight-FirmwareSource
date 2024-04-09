@@ -162,15 +162,15 @@ void setup1()
 
 void loop1()
 {
-    uint8_t  command = 0;
-    uint32_t stepper, param1, param2;
+    uint8_t  command, stepper;
+    int32_t param1, param2;
 
     while (1) {
         if (rp2040.fifo.available()) {
-            command = (int16_t)rp2040.fifo.pop();
-            stepper = (int16_t)rp2040.fifo.pop();
-            param1  = (int16_t)rp2040.fifo.pop();
-            param2  = (int16_t)rp2040.fifo.pop();
+            command = (uint8_t)rp2040.fifo.pop();
+            stepper = (uint8_t)rp2040.fifo.pop();
+            param1  = (int32_t)rp2040.fifo.pop();
+            param2  = (int32_t)rp2040.fifo.pop();
             if (command == Stepper::FUNC_MOVETO) {
                 Stepper::steppers[stepper].moveTo(param1);
             } else if (command == Stepper::FUNC_ZETZERO) {
