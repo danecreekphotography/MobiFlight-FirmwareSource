@@ -68,11 +68,11 @@ namespace CustomDevice
     ********************************************************************************** */
     void update()
     {
-        for (int i = 0; i != customDeviceRegistered; i++) {
 #if !defined(USE_2ND_CORE)
+        for (int i = 0; i != customDeviceRegistered; i++) {
             customDevice[i].update();
-#endif
         }
+#endif
     }
 
     /* **********************************************************************************
