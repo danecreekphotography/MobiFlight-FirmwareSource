@@ -145,30 +145,28 @@ void loop1()
     uint32_t lastMillis = 0;
 
     while (1) {
-        if (rp2040.fifo.available()) {
-            // Hmhm, how to get the function pointer to a function from class??
-            // int32_t (*func)(int16_t, char*) = (int32_t(*)(int16_t, char*)) rp2040.fifo.pop();
-            device    = (int16_t)rp2040.fifo.pop();
-            messageID = (int16_t)rp2040.fifo.pop();
-            payload   = (char *)rp2040.fifo.pop();
-            // (*func)(messageID, payload);
-            CustomDevice::customDevice[device].set(messageID, payload);
-            // send ready for next message to 1st core
-            rp2040.fifo.push(true);
-        }
-#if defined(MF_CUSTOMDEVICE_HAS_UPDATE)
 #ifdef MF_CUSTOMDEVICE_POLL_MS
         if (millis() - lastMillis >= MF_CUSTOMDEVICE_POLL_MS) {
+#endif
             for (int i = 0; i != CustomDevice::customDeviceRegistered; i++) {
+#if defined(MF_CUSTOMDEVICE_HAS_UPDATE)
                 CustomDevice::customDevice[i].update();
+#endif
+                if (rp2040.fifo.available()) {
+                    // Hmhm, how to get the function pointer to a function from class??
+                    // int32_t (*func)(int16_t, char*) = (int32_t(*)(int16_t, char*)) rp2040.fifo.pop();
+                    device    = (int16_t)rp2040.fifo.pop();
+                    messageID = (int16_t)rp2040.fifo.pop();
+                    payload   = (char *)rp2040.fifo.pop();
+                    // (*func)(messageID, payload);
+                    CustomDevice::customDevice[device].set(messageID, payload);
+                    // send ready for next message to 1st core
+                    rp2040.fifo.push(true);
+                }
             }
+#ifdef MF_CUSTOMDEVICE_POLL_MS
             lastMillis = millis();
         }
-#else
-        for (int i = 0; i != CustomDevice::customDeviceRegistered; i++) {
-            CustomDevice::customDevice[i].update();
-        }
-#endif
 #endif
     }
 }
