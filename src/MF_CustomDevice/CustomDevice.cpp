@@ -140,7 +140,8 @@ void setup1()
 
 void loop1()
 {
-    int32_t device, messageID;
+    uint8_t device;
+    int16_t messageID;
     char   *payload;
     uint32_t lastMillis = 0;
 
@@ -155,7 +156,7 @@ void loop1()
                 if (rp2040.fifo.available()) {
                     // Hmhm, how to get the function pointer to a function from class??
                     // int32_t (*func)(int16_t, char*) = (int32_t(*)(int16_t, char*)) rp2040.fifo.pop();
-                    device    = (int16_t)rp2040.fifo.pop();
+                    device    = (uint8_t)rp2040.fifo.pop();
                     messageID = (int16_t)rp2040.fifo.pop();
                     payload   = (char *)rp2040.fifo.pop();
                     // (*func)(messageID, payload);
