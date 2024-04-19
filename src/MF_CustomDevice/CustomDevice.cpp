@@ -143,9 +143,18 @@ void loop1()
     uint8_t device;
     int16_t messageID;
     char   *payload;
+#ifdef MF_CUSTOMDEVICE_POLL_MS
     uint32_t lastMillis = 0;
+#endif
 
     while (1) {
+#ifndef MF_CUSTOMDEVICE_POLL_MS
+        // For now I don't know the reason why this is required.
+        // It might be that getting the stop command from the 1st core
+        // needs some idle time. If it is not used the 1st core stops when
+        // writing to the EEPROM which stops the 2nd core
+        delayMicroseconds(1);
+#endif  
 #ifdef MF_CUSTOMDEVICE_POLL_MS
         if (millis() - lastMillis >= MF_CUSTOMDEVICE_POLL_MS) {
 #endif
@@ -153,7 +162,7 @@ void loop1()
 #if defined(MF_CUSTOMDEVICE_HAS_UPDATE)
                 CustomDevice::customDevice[i].update();
 #endif
-                if (rp2040.fifo.available()) {
+                if (rp2040.fifo.available() == 3) {
                     // Hmhm, how to get the function pointer to a function from class??
                     // int32_t (*func)(int16_t, char*) = (int32_t(*)(int16_t, char*)) rp2040.fifo.pop();
                     device    = (uint8_t)rp2040.fifo.pop();
@@ -164,6 +173,7 @@ void loop1()
                     // send ready for next message to 1st core
                     rp2040.fifo.push(true);
                 }
+
             }
 #ifdef MF_CUSTOMDEVICE_POLL_MS
             lastMillis = millis();
