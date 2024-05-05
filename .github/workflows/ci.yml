@@ -39,12 +39,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install --upgrade platformio
 
-      - name: Checkout custom devices
-        uses: actions/checkout@v3
-        with:
-          repository: MobiFlight/MobiFlight-CustomDevices
-          path: CustomDevices
-
       - name: Run PlatformIO
         env:
           VERSION: "0.0.${{ github.event.number }}"
