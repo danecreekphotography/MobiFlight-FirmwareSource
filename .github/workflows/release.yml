@@ -38,12 +38,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install --upgrade platformio
 
-      - name: Checkout custom devices
-        uses: actions/checkout@v3
-        with:
-          repository: MobiFlight/MobiFlight-CustomDevices
-          path: CustomDevices
-
       - name: Extract build version
         id: get_version
         uses: battila7/get-version-action@v2
