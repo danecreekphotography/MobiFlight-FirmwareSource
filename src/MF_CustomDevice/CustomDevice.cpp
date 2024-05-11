@@ -125,12 +125,12 @@ namespace CustomDevice
     }
 
     // reads an ascii value which is '.' terminated from Flash and returns it's value
-    uint8_t readUintFromFlash(uint16_t *addrflash)
+    uint8_t readUintFromFlash(uint16_t *addrFlash)
     {
         char    params[4] = {0}; // max 3 (255) digits NULL terminated
         uint8_t counter   = 0;
         do {
-            params[counter++] = (char)pgm_read_byte_near(addrflash++);
+            params[counter++] = (char)pgm_read_byte_near(addrFlash++);
             if (params[counter - 1] == 0)
                 return 0;
         } while (params[counter - 1] != '.' && counter < sizeof(params));
@@ -140,18 +140,18 @@ namespace CustomDevice
 
     void GetArraySizesFromFlash(uint8_t numberDevices[])
     {
-        uint16_t* addrFlashP = MFCustomDeviceGetConfig();
-        uint8_t  device    = readUintFromFlash(addrFlashP);
+        uint16_t* addrFlash = MFCustomDeviceGetConfig();
+        uint8_t  device    = readUintFromFlash(addrFlash);
 
         if (device == 0)
             return;
 
         do {
             numberDevices[device]++;
-            while (pgm_read_byte_near(addrFlashP) != ':') {
-                addrFlashP++;
+            while (pgm_read_byte_near(addrFlash) != ':') {
+                addrFlash++;
             }
-            device = readUintFromFlash(++addrFlashP);
+            device = readUintFromFlash(++addrFlash);
         } while (device);
     }
 /*
