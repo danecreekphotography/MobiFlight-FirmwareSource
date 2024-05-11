@@ -244,6 +244,34 @@ bool readEndCommandFromEEPROM(uint16_t *addreeprom, uint8_t delimiter)
     return true;
 }
 
+// reads a string from Flash at given address which is ':' terminated and saves it in the nameBuffer
+// once the nameBuffer is not needed anymore, just read until the ":" termination -> see function below
+bool readNameFromFlash(uint16_t *addrFlash, char *buffer, uint16_t *addrbuffer)
+{
+    char temp = 0;
+    do {
+        temp                    = pgm_read_byte_near((addrFlash)++); // read the first character
+        buffer[(*addrbuffer)++] = temp;                                // save character and locate next buffer position
+        if (*addrbuffer >= MEMLEN_NAMES_BUFFER) {                      // nameBuffer will be exceeded
+            return false;                                              // abort copying from EEPROM to nameBuffer
+        }
+    } while (temp != ':');            // reads until limiter ':' and locates the next free buffer position
+    buffer[(*addrbuffer) - 1] = 0x00; // replace ':' by NULL, terminates the string
+    return true;
+}
+
+// steps thru the Flash until the delimiter is detected
+// it could be ":" for end of one device config
+// or "." for end of type/pin/config entry for custom device
+bool readEndCommandFromFlash(uint16_t *addrFlash, uint8_t delimiter)
+{
+    char     temp   = 0;
+    do {
+        temp = pgm_read_byte_near((addrFlash)++);
+    } while (temp != delimiter); // reads until limiter ':'
+    return true;
+}
+
 void sendFailureMessage(const char *deviceName)
 {
     cmdMessenger.sendCmdStart(kStatus);
@@ -278,7 +306,7 @@ bool getArraysizes()
     }
 
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    CustomDevice::GetArraySizes(numberDevices);
+    CustomDevice::GetArraySizesFromFlash(numberDevices);
 #endif
 
     // then call the function to allocate required memory for the arrays of each type
@@ -542,7 +570,7 @@ void OnGetConfig()
     bool hasConfig = false;
     cmdMessenger.sendCmdStart(kInfo);
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    hasConfig = CustomDevice::GetConfig();
+    hasConfig = CustomDevice::GetConfigFromFlash();
 #endif
     if (configLength > 0) {
         if (!hasConfig)

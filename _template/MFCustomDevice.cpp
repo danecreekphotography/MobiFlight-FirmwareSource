@@ -11,6 +11,7 @@ extern MFEEPROM MFeeprom;
     Send back your input devices which are required for ALL Custom Decices
     The devices are defined in MFCustomDevicesConfig.h
 ********************************************************************************** */
+/*
 bool MFCustomDeviceGetConfig()
 {
     if (sizeof(CustomDeviceConfig) == 1)
@@ -20,6 +21,10 @@ bool MFCustomDeviceGetConfig()
         cmdMessenger.sendArg((char)pgm_read_byte_near(CustomDeviceConfig + i));
     }
     return true;
+}
+*/
+uint16_t *MFCustomDeviceGetConfig() {
+    return (uint16_t*)CustomDeviceConfig;
 }
 
 /* **********************************************************************************
