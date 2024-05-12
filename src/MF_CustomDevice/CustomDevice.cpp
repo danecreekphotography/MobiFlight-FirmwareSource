@@ -141,6 +141,12 @@ namespace CustomDevice
         }
     }
 
+    bool CheckConfigFlash()
+    {
+        if (MFCustomDeviceGetConfig() == NULL)
+            return false;
+        return true;
+    }
     /* **********************************************************************************
         These functions are called after startup to inform the connector
         about custom input devices.
@@ -221,7 +227,7 @@ namespace CustomDevice
         return true;
     }
 
-    void readConfigFromFlash()
+    void ReadConfigFromFlash()
     {
         uint16_t *addrFlash   = MFCustomDeviceGetConfig();
         uint16_t addrbuffer   = 0;                               // and start with first memory location from nameBuffer

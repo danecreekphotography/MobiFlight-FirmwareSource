@@ -76,6 +76,7 @@ boolean   configActivated                 = false;
 void resetConfig();
 void readConfig();
 void _activateConfig();
+void readConfigFromEEPROM();
 
 // ************************************************************
 // configBuffer handling
@@ -328,6 +329,18 @@ bool getArraysizes()
 }
 
 void readConfig()
+{
+#if MF_CUSTOMDEVICE_SUPPORT == 1
+    if (CustomDevice::CheckConfigFlash())
+        CustomDevice::ReadConfigFromFlash();
+    else
+        readConfigFromEEPROM();
+#else
+    readConfigFromEEPROM();
+#endif
+}
+
+void readConfigFromEEPROM()
 {
     if (configLength == 0) // do nothing if no config is available
         return;
