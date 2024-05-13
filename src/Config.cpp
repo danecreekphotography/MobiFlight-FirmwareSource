@@ -253,14 +253,12 @@ void sendFailureMessage(const char *deviceName)
     cmdMessenger.sendCmdEnd();
 }
 
-bool getArraysizes()
-{
+bool GetArraySizeFromEEPROM(uint8_t *numberDevices) {
     if (configLength == 0) // do nothing if no config is available
         return true;
     uint16_t addreeprom              = MEM_OFFSET_CONFIG;               // define first memory location where config is saved in EEPROM
     uint8_t  device                  = readUintFromEEPROM(&addreeprom); // read the first value from EEPROM, it's a device definition
     bool     copy_success            = true;                            // will be set to false if copying input names to nameBuffer exceeds array dimensions
-    uint8_t  numberDevices[kTypeMax] = {0};
 
     if (device == 0) // just to be sure, configLength should also be 0
         return true;
@@ -272,6 +270,23 @@ bool getArraysizes()
         copy_success = readEndCommandFromEEPROM(&addreeprom, ':'); // check EEPROM until end of name
         device       = readUintFromEEPROM(&addreeprom);
     } while (device && copy_success);
+
+    if (!copy_success) {
+        return false;
+    }
+    return true;
+}
+
+bool GetArraySizes(bool ReadFromFlash)
+{
+    uint8_t  numberDevices[kTypeMax] = {0};
+    bool     copy_success            = true;
+#if MF_CUSTOMDEVICE_SUPPORT == 1
+    if (ReadFromFlash)
+        copy_success = CustomDevice::GetArraySizesFromFlash(numberDevices);
+    else
+#endif
+        copy_success = GetArraySizeFromEEPROM(numberDevices);
 
     if (!copy_success) { // too much/long names for input devices -> tbd how to handle this!!
         cmdMessenger.sendCmd(kStatus, F("Failure, EEPROM size exceeded "));
@@ -327,11 +342,15 @@ bool getArraysizes()
 void readConfig()
 {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    if (CustomDevice::CheckConfigFlash())
+    if (CustomDevice::CheckConfigFlash()) {
+        GetArraySizes(true);
         CustomDevice::ReadConfigFromFlash();
-    else
+    } else {
+        GetArraySizes(false);
         readConfigFromEEPROM();
+    }
 #else
+    GetArraySizes(false);
     readConfigFromEEPROM();
 #endif
 }
@@ -349,8 +368,6 @@ void readConfigFromEEPROM()
 
     if (command == 0) // just to be sure, configLength should also be 0
         return;
-
-    getArraysizes();
 
     do // go through the EEPROM until it is NULL terminated
     {

@@ -148,9 +148,7 @@ namespace CustomDevice
     ********************************************************************************** */
     bool CheckConfigFlash()
     {
-        if (pgm_read_byte_near(MFCustomDeviceGetConfig()) == 0x00)
-            return false;
-        return true;
+        return MFCustomDeviceConfigFlash();
     }
 
     void GetConfigFromFlash()
@@ -198,12 +196,11 @@ namespace CustomDevice
         return true;
     }
 
-    bool GetArraySizesFromFlash()
+    bool GetArraySizesFromFlash(uint8_t *numberDevices)
     {
         uint16_t addrFlash = 0;
         uint8_t  device    = readUintFromFlash(&addrFlash);
         bool     copy_success            = true;
-        uint8_t  numberDevices[kTypeMax] = {0};
 
         if (device == 0)
             return true;
@@ -214,53 +211,9 @@ namespace CustomDevice
             device = readUintFromFlash(&addrFlash);
         } while (device && copy_success);
 
-        if (!copy_success) { // too much/long names for input devices -> tbd how to handle this!!
-            cmdMessenger.sendCmd(kStatus, F("Failure, EEPROM size exceeded "));
+        if (!copy_success) {
             return false;
         }
-
-    if (!Button::setupArray(numberDevices[kTypeButton]))
-        sendFailureMessage("Button");
-    if (!Output::setupArray(numberDevices[kTypeOutput]))
-        sendFailureMessage("Output");
-#if MF_SEGMENT_SUPPORT == 1
-    if (!LedSegment::setupArray(numberDevices[kTypeLedSegmentDeprecated] + numberDevices[kTypeLedSegmentMulti]))
-        sendFailureMessage("7Segment");
-#endif
-#if MF_STEPPER_SUPPORT == 1
-    if (!Stepper::setupArray(numberDevices[kTypeStepper] + numberDevices[kTypeStepperDeprecated1] + numberDevices[kTypeStepperDeprecated2]))
-        sendFailureMessage("Stepper");
-#endif
-#if MF_SERVO_SUPPORT == 1
-    if (!Servos::setupArray(numberDevices[kTypeServo]))
-        sendFailureMessage("Servo");
-#endif
-    if (!Encoder::setupArray(numberDevices[kTypeEncoder] + numberDevices[kTypeEncoderSingleDetent]))
-        sendFailureMessage("Encoders");
-#if MF_LCD_SUPPORT == 1
-    if (!LCDDisplay::setupArray(numberDevices[kTypeLcdDisplayI2C]))
-        sendFailureMessage("LCD");
-#endif
-#if MF_ANALOG_SUPPORT == 1
-    if (!Analog::setupArray(numberDevices[kTypeAnalogInput]))
-        sendFailureMessage("AnalogIn");
-#endif
-#if MF_OUTPUT_SHIFTER_SUPPORT == 1
-    if (!OutputShifter::setupArray(numberDevices[kTypeOutputShifter]))
-        sendFailureMessage("OutputShifter");
-#endif
-#if MF_INPUT_SHIFTER_SUPPORT == 1
-    if (!InputShifter::setupArray(numberDevices[kTypeInputShifter]))
-        sendFailureMessage("InputShifter");
-#endif
-#if MF_DIGIN_MUX_SUPPORT == 1
-    if (!DigInMux::setupArray(numberDevices[kTypeDigInMux]))
-        sendFailureMessage("DigInMux");
-#endif
-#if MF_CUSTOMDEVICE_SUPPORT == 1
-    if (!CustomDevice::setupArray(numberDevices[kTypeCustomDevice]))
-        sendFailureMessage("CustomDevice");
-#endif
     return true;
     }
 
@@ -292,8 +245,6 @@ namespace CustomDevice
 
         if (pgm_read_byte_near(&addrFlash) == 0x00)
             return;
-
-        GetArraySizesFromFlash();
 
         do // go through the Flash until it is NULL terminated
         {

@@ -10,6 +10,7 @@ enum {
 };
 
 char* MFCustomDeviceGetConfig();
+bool MFCustomDeviceConfigFlash();
 
 class MFCustomDevice
 {

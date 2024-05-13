@@ -7,12 +7,19 @@ extern MFEEPROM MFeeprom;
 
 /* **********************************************************************************
     This function is called after startup to inform the connector
-    about custom input devices.
-    Send back your input devices which are required for ALL Custom Decices
+    about config in Flash
     The devices are defined in MFCustomDevicesConfig.h
 ********************************************************************************** */
 char* MFCustomDeviceGetConfig() {
     return (char*)CustomDeviceConfig;
+}
+
+bool MFCustomDeviceConfigFlash()
+{
+    if (pgm_read_byte_near(MFCustomDeviceGetConfig()) == 0x00) {
+        return false;
+    }
+    return true;
 }
 
 /* **********************************************************************************
