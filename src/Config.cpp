@@ -284,8 +284,8 @@ bool GetArraySizes(bool ReadFromFlash)
 #if MF_CUSTOMDEVICE_SUPPORT == 1
     if (ReadFromFlash)
         copy_success = CustomDevice::GetArraySizesFromFlash(numberDevices);
-    else
 #endif
+    if (!ReadFromFlash)
         copy_success = GetArraySizeFromEEPROM(numberDevices);
 
     if (!copy_success) { // too much/long names for input devices -> tbd how to handle this!!
@@ -563,7 +563,9 @@ void OnGetConfig()
     }
 #endif
     if (configLength > 0) {
-        cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
+        cmdMessenger.sendCmdArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
+        // if config from flash should also be sent, above command must be cmdMessenger.sendArg()
+        // How to handle this???
         for (uint16_t i = 1; i < configLength; i++) {
             cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG + i));
         }
