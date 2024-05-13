@@ -545,7 +545,7 @@ void OnGetConfig()
     cmdMessenger.sendCmdStart(kInfo);
 #if MF_CUSTOMDEVICE_SUPPORT == 1
     hasConfig = CustomDevice::GetConfigFromFlash();
-#endif
+#else
     if (configLength > 0) {
         if (!hasConfig)
             cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
@@ -553,6 +553,7 @@ void OnGetConfig()
             cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG + i));
         }
     }
+#endif
     cmdMessenger.sendCmdEnd();
 }
 
