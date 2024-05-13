@@ -40,5 +40,6 @@ void OnGetInfo(void);
 void OnGenNewSerial(void);
 void OnSetName(void);
 void restoreName(void);
+void sendFailureMessage(const char *deviceName);
 
 // config.h

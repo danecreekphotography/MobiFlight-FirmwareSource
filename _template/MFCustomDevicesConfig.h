@@ -6,7 +6,7 @@
 // const char CustomDeviceConfig[] PROGMEM = {};
 
 // Otherwise define your input custom devices
-const char CustomDeviceConfig[] PROGMEM = 
+const static char CustomDeviceConfig[] PROGMEM = 
 {
     "1.2.Button Flash:"
     "8.3.4.0.Encoder Flash:"

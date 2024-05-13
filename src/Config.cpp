@@ -277,11 +277,11 @@ bool getArraysizes()
         cmdMessenger.sendCmd(kStatus, F("Failure, EEPROM size exceeded "));
         return false;
     }
-
+/*
 #if MF_CUSTOMDEVICE_SUPPORT == 1
     CustomDevice::GetArraySizesFromFlash(numberDevices);
 #endif
-
+*/
     // then call the function to allocate required memory for the arrays of each type
     if (!Button::setupArray(numberDevices[kTypeButton]))
         sendFailureMessage("Button");
@@ -541,19 +541,20 @@ void readConfigFromEEPROM()
 
 void OnGetConfig()
 {
-    bool hasConfig = false;
     cmdMessenger.sendCmdStart(kInfo);
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    hasConfig = CustomDevice::GetConfigFromFlash();
-#else
+    if (CustomDevice::CheckConfigFlash()) {
+        CustomDevice::GetConfigFromFlash();
+        cmdMessenger.sendCmdEnd();
+        return;
+    }
+#endif
     if (configLength > 0) {
-        if (!hasConfig)
-            cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
+        cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
         for (uint16_t i = 1; i < configLength; i++) {
             cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG + i));
         }
     }
-#endif
     cmdMessenger.sendCmdEnd();
 }
 

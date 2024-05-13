@@ -9,7 +9,7 @@ enum {
     MY_CUSTOM_DEVICE_2
 };
 
-uint16_t* MFCustomDeviceGetConfig();
+char* MFCustomDeviceGetConfig();
 
 class MFCustomDevice
 {
