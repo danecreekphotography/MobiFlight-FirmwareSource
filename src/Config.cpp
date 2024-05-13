@@ -486,17 +486,6 @@ void readConfigFromEEPROM()
             break;
 #endif
 
-#if MF_MUX_SUPPORT == 1
-            // No longer a separate config command for the mux driver
-            // case kTypeMuxDriver:
-            //   params[0] = strtok_r(NULL, ".", &p); // Sel0 pin
-            //   params[1] = strtok_r(NULL, ".", &p); // Sel1 pin
-            //   params[2] = strtok_r(NULL, ".", &p); // Sel2 pin
-            //   params[3] = strtok_r(NULL, ":", &p); // Sel3 pin
-            //   AddMultiplexer(atoi(params[0]), atoi(params[1]), atoi(params[2]), atoi(params[3]));
-            //   break;
-#endif
-
 #if MF_DIGIN_MUX_SUPPORT == 1
         case kTypeDigInMux:
             params[0] = readUintFromEEPROM(&addreeprom); // data pin

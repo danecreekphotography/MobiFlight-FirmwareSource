@@ -141,16 +141,17 @@ namespace CustomDevice
         }
     }
 
+    /* **********************************************************************************
+        These functions are called after startup to inform the connector
+        about the config stored in the Flash and to load the config from Flash
+    ********************************************************************************** */
     bool CheckConfigFlash()
     {
         if (MFCustomDeviceGetConfig() == NULL)
             return false;
         return true;
     }
-    /* **********************************************************************************
-        These functions are called after startup to inform the connector
-        about custom input devices.
-    ********************************************************************************** */
+
     bool GetConfigFromFlash()
     {
         uint16_t* CustomDeviceConfig = MFCustomDeviceGetConfig();
@@ -369,17 +370,6 @@ namespace CustomDevice
                 copy_success = readNameFromFlash(addrFlash, nameBuffer, &addrbuffer); // copy the NULL terminated name to to nameBuffer and set to next free memory location
                                                                                         //    copy_success = readEndCommandFromFlash(addrFlash, ':');       // once the nameBuffer is not required anymore uncomment this line and delete the line before
                 break;
-    #endif
-
-    #if MF_MUX_SUPPORT == 1
-                // No longer a separate config command for the mux driver
-                // case kTypeMuxDriver:
-                //   params[0] = strtok_r(NULL, ".", &p); // Sel0 pin
-                //   params[1] = strtok_r(NULL, ".", &p); // Sel1 pin
-                //   params[2] = strtok_r(NULL, ".", &p); // Sel2 pin
-                //   params[3] = strtok_r(NULL, ":", &p); // Sel3 pin
-                //   AddMultiplexer(atoi(params[0]), atoi(params[1]), atoi(params[2]), atoi(params[3]));
-                //   break;
     #endif
 
     #if MF_DIGIN_MUX_SUPPORT == 1
