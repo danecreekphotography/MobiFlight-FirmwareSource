@@ -277,11 +277,7 @@ bool getArraysizes()
         cmdMessenger.sendCmd(kStatus, F("Failure, EEPROM size exceeded "));
         return false;
     }
-/*
-#if MF_CUSTOMDEVICE_SUPPORT == 1
-    CustomDevice::GetArraySizesFromFlash(numberDevices);
-#endif
-*/
+
     // then call the function to allocate required memory for the arrays of each type
     if (!Button::setupArray(numberDevices[kTypeButton]))
         sendFailureMessage("Button");
