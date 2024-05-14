@@ -208,7 +208,7 @@ void _activateConfig()
 uint8_t readUintFromEEPROM(volatile uint16_t *addreeprom, bool configFromFlash = false)
 {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    char *addrBase = (char*)CustomDeviceConfig;
+    char *addrBase = (char *)CustomDeviceConfig;
 #endif
     char    params[4] = {0}; // max 3 (255) digits NULL terminated
     uint8_t counter   = 0;
@@ -231,7 +231,7 @@ uint8_t readUintFromEEPROM(volatile uint16_t *addreeprom, bool configFromFlash =
 bool readNameFromEEPROM(uint16_t *addreeprom, char *buffer, uint16_t *addrbuffer, bool configFromFlash = false)
 {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    char *addrBase = (char*)CustomDeviceConfig;
+    char *addrBase = (char *)CustomDeviceConfig;
 #endif
     char temp = 0;
     do {
@@ -259,7 +259,7 @@ bool readNameFromEEPROM(uint16_t *addreeprom, char *buffer, uint16_t *addrbuffer
 bool readEndCommandFromEEPROM(uint16_t *addreeprom, uint8_t delimiter, bool configFromFlash = false)
 {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    char *addrBase = (char*)CustomDeviceConfig;
+    char *addrBase = (char *)CustomDeviceConfig;
 #endif
     char     temp   = 0;
     uint16_t length = MFeeprom.get_length();
@@ -381,13 +381,13 @@ bool GetArraySizes(bool ReadFromFlash)
 }
 
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    bool CheckConfigFlash()
-    {
-        if (pgm_read_byte_near((char*)CustomDeviceConfig) == 0x00) {
-            return false;
-        }
-        return true;
+bool CheckConfigFlash()
+{
+    if (pgm_read_byte_near((char *)CustomDeviceConfig) == 0x00) {
+        return false;
     }
+    return true;
+}
 #endif
 
 void readConfig()
@@ -409,12 +409,12 @@ void readConfigFromEEPROM(bool configFromFlash)
     if (configLength == 0 && !configFromFlash) // do nothing if no config in EEPROM is available
         return;
 
-    uint16_t addreeprom   = 0;      // define first memory location where config is saved in EEPROM
-    uint16_t addrbuffer   = 0;      // and start with first memory location from nameBuffer
-    char     params[8]    = "";     // buffer for reading parameters from EEPROM and sending to ::Add() function of device
-    uint8_t  command      = 0;      // read the first value from EEPROM, it's a device definition
-    bool     copy_success = true;   // will be set to false if copying input names to nameBuffer exceeds array dimensions
-                                    // not required anymore when pins instead of names are transferred to the UI
+    uint16_t addreeprom   = 0;    // define first memory location where config is saved in EEPROM
+    uint16_t addrbuffer   = 0;    // and start with first memory location from nameBuffer
+    char     params[8]    = "";   // buffer for reading parameters from EEPROM and sending to ::Add() function of device
+    uint8_t  command      = 0;    // read the first value from EEPROM, it's a device definition
+    bool     copy_success = true; // will be set to false if copying input names to nameBuffer exceeds array dimensions
+                                  // not required anymore when pins instead of names are transferred to the UI
 
 #if MF_CUSTOMDEVICE_SUPPORT == 1
     if (!CheckConfigFlash())
@@ -611,22 +611,42 @@ void readConfigFromEEPROM(bool configFromFlash)
     }
 }
 
+void GetConfigFromEEPROM()
+{
+    cmdMessenger.sendCmdArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
+    // if config from flash should also be sent, above command must be cmdMessenger.sendArg()
+    // How to handle this???
+    for (uint16_t i = 1; i < configLength; i++) {
+        cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG + i));
+    }
+}
+
+#if MF_CUSTOMDEVICE_SUPPORT == 1
+void GetConfigFromFlash()
+{
+    char *addrFlash = (char *)CustomDeviceConfig;
+    char  readBytefromFlash = pgm_read_byte_near(addrFlash++);
+
+    cmdMessenger.sendCmdArg((char)readBytefromFlash);
+    readBytefromFlash = pgm_read_byte_near(addrFlash++);
+    do {
+        cmdMessenger.sendArg((char)readBytefromFlash);
+        readBytefromFlash = pgm_read_byte_near(addrFlash++);
+    } while (readBytefromFlash != 0);
+}
+#endif
+
 void OnGetConfig()
 {
     cmdMessenger.sendCmdStart(kInfo);
 #if MF_CUSTOMDEVICE_SUPPORT == 1
     if (CheckConfigFlash()) {
-        CustomDevice::GetConfigFromFlash();
-        cmdMessenger.sendCmdEnd();
-        return;
-    }
+        GetConfigFromFlash();
+    } else
 #endif
-    if (configLength > 0) {
-        cmdMessenger.sendCmdArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
-        // if config from flash should also be sent, above command must be cmdMessenger.sendArg()
-        // How to handle this???
-        for (uint16_t i = 1; i < configLength; i++) {
-            cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG + i));
+    {
+        if (configLength > 0) {
+            GetConfigFromEEPROM();
         }
     }
     cmdMessenger.sendCmdEnd();

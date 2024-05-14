@@ -3,8 +3,8 @@
 #include <Arduino.h>
 
 // If no input custom deivece is defined, uncomment the following line
-//const char CustomDeviceConfig[] PROGMEM = {0};
-
+const char CustomDeviceConfig[] PROGMEM = {0};
+/*
 // Otherwise define your input custom devices
 const char CustomDeviceConfig[] PROGMEM = 
 {
@@ -14,3 +14,4 @@ const char CustomDeviceConfig[] PROGMEM =
     "12.7.6.5.1.InputShifter Flash:"
     "14.12.8.9.10.11.2.Multiplexer Flash:"
 };
+*/

@@ -38,7 +38,6 @@
 #if MF_MUX_SUPPORT == 1
 extern MFMuxDriver MUX;
 #endif
-#include "MFCustomDevicesConfig.h"
 
 /* **********************************************************************************
     Normally nothing has to be changed in this file
@@ -140,26 +139,4 @@ namespace CustomDevice
                 customDevice[i].set(MESSAGEID_POWERSAVINGMODE, "0");
         }
     }
-
-    /* **********************************************************************************
-        These functions are called after startup to inform the connector
-        about the config stored in the Flash and to load the config from Flash
-    ********************************************************************************** */
-    void GetConfigFromFlash()
-    {
-        char *addrFlash         = (char*)CustomDeviceConfig;
-        char  readBytefromFlash = pgm_read_byte_near(addrFlash++);
-
-        if (readBytefromFlash == 0)
-            return;
-        cmdMessenger.sendCmdArg((char)readBytefromFlash);
-        readBytefromFlash = pgm_read_byte_near(addrFlash++);
-        do {
-            cmdMessenger.sendArg((char)readBytefromFlash);
-            readBytefromFlash = pgm_read_byte_near(addrFlash++);
-        } while (readBytefromFlash != 0);
-
-        return;
-    }
-
 } // end of namespace
