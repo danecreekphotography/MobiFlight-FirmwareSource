@@ -2,25 +2,8 @@
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFEEPROM.h"
-#include "MFCustomDevicesConfig.h"
+
 extern MFEEPROM MFeeprom;
-
-/* **********************************************************************************
-    This function is called after startup to inform the connector
-    about config in Flash
-    The devices are defined in MFCustomDevicesConfig.h
-********************************************************************************** */
-char* MFCustomDeviceGetConfig() {
-    return (char*)CustomDeviceConfig;
-}
-
-bool MFCustomDeviceConfigFlash()
-{
-    if (pgm_read_byte_near(MFCustomDeviceGetConfig()) == 0x00) {
-        return false;
-    }
-    return true;
-}
 
 /* **********************************************************************************
     The custom device pins, type and configuration is stored in the EEPROM
@@ -51,7 +34,7 @@ bool MFCustomDevice::getStringFromEEPROM(uint16_t addreeprom, char *buffer)
         if (counter >= MEMLEN_STRING_BUFFER) {                  // nameBuffer will be exceeded
             return false;                                       // abort copying to buffer
         }
-    } while (temp != '.');      // reads until limiter '.' and locates the next free buffer position
+    } while (temp != '.'); // reads until limiter '.' and locates the next free buffer position
     buffer[counter - 1] = 0x00; // replace '.' by NULL, terminates the string
     return true;
 }

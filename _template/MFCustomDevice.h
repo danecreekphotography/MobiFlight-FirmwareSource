@@ -9,9 +9,6 @@ enum {
     MY_CUSTOM_DEVICE_2
 };
 
-char* MFCustomDeviceGetConfig();
-bool MFCustomDeviceConfigFlash();
-
 class MFCustomDevice
 {
 public:

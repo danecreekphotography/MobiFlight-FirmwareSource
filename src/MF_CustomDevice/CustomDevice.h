@@ -9,7 +9,4 @@ namespace CustomDevice
     void OnSet();
     void PowerSave(bool state);
     void GetConfigFromFlash();
-    bool GetArraySizesFromFlash(uint8_t *numberDevices);
-    void ReadConfigFromFlash();
-    bool CheckConfigFlash();
 }

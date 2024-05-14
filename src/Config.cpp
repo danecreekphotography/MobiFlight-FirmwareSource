@@ -43,6 +43,7 @@
 #if MF_CUSTOMDEVICE_SUPPORT == 1
 #include "CustomDevice.h"
 #include "MFCustomDevice.h"
+#include "MFCustomDevicesConfig.h"
 #endif
 
 // The build version comes from an environment variable
@@ -77,7 +78,7 @@ boolean   configActivated                 = false;
 void resetConfig();
 void readConfig();
 void _activateConfig();
-void readConfigFromEEPROM();
+void readConfigFromEEPROM(bool configFromFlash);
 
 // ************************************************************
 // configBuffer handling
@@ -207,7 +208,7 @@ void _activateConfig()
 uint8_t readUintFromEEPROM(volatile uint16_t *addreeprom, bool configFromFlash = false)
 {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    char *addrBase = MFCustomDeviceGetConfig();
+    char *addrBase = (char*)CustomDeviceConfig;
 #endif
     char    params[4] = {0}; // max 3 (255) digits NULL terminated
     uint8_t counter   = 0;
@@ -230,13 +231,13 @@ uint8_t readUintFromEEPROM(volatile uint16_t *addreeprom, bool configFromFlash =
 bool readNameFromEEPROM(uint16_t *addreeprom, char *buffer, uint16_t *addrbuffer, bool configFromFlash = false)
 {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    char *addrBase = MFCustomDeviceGetConfig();
+    char *addrBase = (char*)CustomDeviceConfig;
 #endif
     char temp = 0;
     do {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
         if (configFromFlash) {
-            temp = pgm_read_byte_near(addrBase + (*addrFlash)++); // read the first character
+            temp = pgm_read_byte_near(addrBase + (*addreeprom)++); // read the first character
         } else
 #endif
         {
@@ -258,14 +259,14 @@ bool readNameFromEEPROM(uint16_t *addreeprom, char *buffer, uint16_t *addrbuffer
 bool readEndCommandFromEEPROM(uint16_t *addreeprom, uint8_t delimiter, bool configFromFlash = false)
 {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    char *addrBase = MFCustomDeviceGetConfig();
+    char *addrBase = (char*)CustomDeviceConfig;
 #endif
     char     temp   = 0;
     uint16_t length = MFeeprom.get_length();
     do {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
         if (configFromFlash) {
-            temp = pgm_read_byte_near(addrBase + (*addrFlash)++);
+            temp = pgm_read_byte_near(addrBase + (*addreeprom)++);
         } else
 #endif
         {
@@ -311,7 +312,7 @@ bool GetArraySizeFromEEPROM(uint8_t *numberDevices, bool configFromFlash = false
     do // step through the EEPROM until it is NULL terminated
     {
         numberDevices[device]++;
-        copy_success = readEndCommandFromEEPROM(&addreeprom, ':'); // check EEPROM until end of name
+        copy_success = readEndCommandFromEEPROM(&addreeprom, ':', configFromFlash); // check EEPROM until end of name
         device       = readUintFromEEPROM(&addreeprom, configFromFlash);
     } while (device && copy_success);
 
@@ -379,32 +380,48 @@ bool GetArraySizes(bool ReadFromFlash)
     return true;
 }
 
+#if MF_CUSTOMDEVICE_SUPPORT == 1
+    bool CheckConfigFlash()
+    {
+        if (pgm_read_byte_near((char*)CustomDeviceConfig) == 0x00) {
+            return false;
+        }
+        return true;
+    }
+#endif
+
 void readConfig()
 {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    if (CustomDevice::CheckConfigFlash()) {
+    if (CheckConfigFlash()) {
         GetArraySizes(true);
-        CustomDevice::ReadConfigFromFlash();
+        readConfigFromEEPROM(true);
     } else
 #endif
     {
         GetArraySizes(false);
-        readConfigFromEEPROM();
+        readConfigFromEEPROM(false);
     }
-    GetArraySizes(false);
-    readConfigFromEEPROM();
 }
 
 void readConfigFromEEPROM(bool configFromFlash)
 {
-    if (configLength == 0) // do nothing if no config is available
+    if (configLength == 0 && !configFromFlash) // do nothing if no config in EEPROM is available
         return;
-    uint16_t addreeprom   = MEM_OFFSET_CONFIG; // define first memory location where config is saved in EEPROM
-    uint16_t addrbuffer   = 0;                 // and start with first memory location from nameBuffer
-    char     params[8]    = "";                // buffer for reading parameters from EEPROM and sending to ::Add() function of device
-    uint8_t  command      = 0;                 // read the first value from EEPROM, it's a device definition
-    bool     copy_success = true;              // will be set to false if copying input names to nameBuffer exceeds array dimensions
-                                               // not required anymore when pins instead of names are transferred to the UI
+
+    uint16_t addreeprom   = 0;      // define first memory location where config is saved in EEPROM
+    uint16_t addrbuffer   = 0;      // and start with first memory location from nameBuffer
+    char     params[8]    = "";     // buffer for reading parameters from EEPROM and sending to ::Add() function of device
+    uint8_t  command      = 0;      // read the first value from EEPROM, it's a device definition
+    bool     copy_success = true;   // will be set to false if copying input names to nameBuffer exceeds array dimensions
+                                    // not required anymore when pins instead of names are transferred to the UI
+
+#if MF_CUSTOMDEVICE_SUPPORT == 1
+    if (!CheckConfigFlash())
+#endif
+    {
+        addreeprom = MEM_OFFSET_CONFIG; // define first memory location where config is saved in EEPROM
+    }
 
     command = readUintFromEEPROM(&addreeprom, configFromFlash); // read the first value from EEPROM, it's a device definition
 
@@ -415,8 +432,8 @@ void readConfigFromEEPROM(bool configFromFlash)
     {
         switch (command) {
         case kTypeButton:
-            params[0] = readUintFromEEPROM(&addreeprom, configFromFlash);            // Pin number
-            Button::Add(params[0], &nameBuffer[addrbuffer]);                         // MUST be before readNameFromEEPROM because readNameFromEEPROM returns the pointer for the NEXT Name
+            params[0] = readUintFromEEPROM(&addreeprom, configFromFlash);                             // Pin number
+            Button::Add(params[0], &nameBuffer[addrbuffer]);                                          // MUST be before readNameFromEEPROM because readNameFromEEPROM returns the pointer for the NEXT Name
             copy_success = readNameFromEEPROM(&addreeprom, nameBuffer, &addrbuffer, configFromFlash); // copy the NULL terminated name to nameBuffer and set to next free memory location
             break;
 
@@ -494,7 +511,7 @@ void readConfigFromEEPROM(bool configFromFlash)
             if (command == kTypeEncoder)
                 params[2] = readUintFromEEPROM(&addreeprom, configFromFlash); // type
 
-            Encoder::Add(params[0], params[1], params[2], &nameBuffer[addrbuffer]);  // MUST be before readNameFromEEPROM because readNameFromEEPROM returns the pointer for the NEXT Name
+            Encoder::Add(params[0], params[1], params[2], &nameBuffer[addrbuffer]);                   // MUST be before readNameFromEEPROM because readNameFromEEPROM returns the pointer for the NEXT Name
             copy_success = readNameFromEEPROM(&addreeprom, nameBuffer, &addrbuffer, configFromFlash); // copy the NULL terminated name to nameBuffer and set to next free memory location
             break;
 
@@ -510,9 +527,9 @@ void readConfigFromEEPROM(bool configFromFlash)
 
 #if MF_ANALOG_SUPPORT == 1
         case kTypeAnalogInput:
-            params[0] = readUintFromEEPROM(&addreeprom, configFromFlash);            // pin number
-            params[1] = readUintFromEEPROM(&addreeprom, configFromFlash);            // sensitivity
-            Analog::Add(params[0], &nameBuffer[addrbuffer], params[1]);              // MUST be before readNameFromEEPROM because readNameFromEEPROM returns the pointer for the NEXT Name
+            params[0] = readUintFromEEPROM(&addreeprom, configFromFlash);                             // pin number
+            params[1] = readUintFromEEPROM(&addreeprom, configFromFlash);                             // sensitivity
+            Analog::Add(params[0], &nameBuffer[addrbuffer], params[1]);                               // MUST be before readNameFromEEPROM because readNameFromEEPROM returns the pointer for the NEXT Name
             copy_success = readNameFromEEPROM(&addreeprom, nameBuffer, &addrbuffer, configFromFlash); // copy the NULL terminated name to to nameBuffer and set to next free memory location
                                                                                                       //    copy_success = readEndCommandFromEEPROM(&addreeprom, ':');       // once the nameBuffer is not required anymore uncomment this line and delete the line before
             break;
@@ -598,7 +615,7 @@ void OnGetConfig()
 {
     cmdMessenger.sendCmdStart(kInfo);
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-    if (CustomDevice::CheckConfigFlash()) {
+    if (CheckConfigFlash()) {
         CustomDevice::GetConfigFromFlash();
         cmdMessenger.sendCmdEnd();
         return;
