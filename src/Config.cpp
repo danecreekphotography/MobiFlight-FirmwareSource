@@ -42,7 +42,11 @@
 #endif
 #if MF_CUSTOMDEVICE_SUPPORT == 1
 #include "CustomDevice.h"
+#endif
+#ifdef HAS_CONFIG_IN_FLASH
 #include "MFCustomDevicesConfig.h"
+#else
+const char CustomDeviceConfig[] PROGMEM = {};
 #endif
 
 // The build version comes from an environment variable
@@ -73,7 +77,7 @@ const int MEM_LEN_CONFIG                  = MEMLEN_CONFIG;
 char      nameBuffer[MEMLEN_NAMES_BUFFER] = "";
 uint16_t  configLengthEEPROM              = 0;
 boolean   configActivated                 = false;
-uint16_t  pNameBuffer                     = 0; // pointer for nameBuffer during reading the config
+uint16_t  pNameBuffer                     = 0; // pointer for nameBuffer during reading of config
 #if MF_CUSTOMDEVICE_SUPPORT == 1
 const uint8_t configLengthFlash = sizeof(CustomDeviceConfig);
 #endif
@@ -174,7 +178,6 @@ void resetConfig()
 #if MF_CUSTOMDEVICE_SUPPORT == 1
     CustomDevice::Clear();
 #endif
-
     configLengthEEPROM = 0;
     configActivated    = false;
     pNameBuffer        = 0;
@@ -207,15 +210,12 @@ void _activateConfig()
 // reads an ascii value which is '.' terminated from EEPROM or Flash and returns it's value
 uint8_t readUint(volatile uint16_t *addrMem, bool configFromFlash)
 {
-#if MF_CUSTOMDEVICE_SUPPORT == 1
-    char *addrBase = (char *)CustomDeviceConfig;
-#endif
     char    params[4] = {0}; // max 3 (255) digits NULL terminated
     uint8_t counter   = 0;
     do {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
         if (configFromFlash) {
-            params[counter++] = (char)pgm_read_byte_near(addrBase + (*addrMem)++);
+            params[counter++] = pgm_read_byte_near(CustomDeviceConfig + (*addrMem)++);
         } else
 #endif
         {
@@ -230,16 +230,13 @@ uint8_t readUint(volatile uint16_t *addrMem, bool configFromFlash)
 // once the nameBuffer is not needed anymore, just read until the ":" termination -> see function below
 bool readName(uint16_t *addrMem, char *buffer, uint16_t *pBuffer, bool configFromFlash)
 {
-#if MF_CUSTOMDEVICE_SUPPORT == 1
-    char *addrBase = (char *)CustomDeviceConfig;
-#endif
     char     temp   = 0;
     uint16_t length = MFeeprom.get_length();
     do {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
         if (configFromFlash) {
-            temp = pgm_read_byte_near(addrBase + (*addrMem)++); // read the first character
-            if (*addrMem > configLengthFlash)                   // abort if config array size will be exceeded
+            temp = pgm_read_byte_near(CustomDeviceConfig + (*addrMem)++); // read the first character
+            if (*addrMem > configLengthFlash)                             // abort if config array size will be exceeded
                 return false;
         } else
 #endif
@@ -249,14 +246,12 @@ bool readName(uint16_t *addrMem, char *buffer, uint16_t *pBuffer, bool configFro
                 return false;
         }
         buffer[(*pBuffer)++] = temp;         // save character and locate next buffer position
-                                             // Serial.print(temp);
         if (*pBuffer >= MEMLEN_NAMES_BUFFER) // nameBuffer will be exceeded
         {
             return false; // abort copying from EEPROM to nameBuffer
         }
     } while (temp != ':'); // reads until limiter ':' and locates the next free buffer position
     buffer[(*pBuffer) - 1] = 0x00; // replace ':' by NULL, terminates the string
-                                   // Serial.println();
     return true;
 }
 
@@ -265,15 +260,12 @@ bool readName(uint16_t *addrMem, char *buffer, uint16_t *pBuffer, bool configFro
 // or "." for end of type/pin/config entry for custom device
 bool readEndCommand(uint16_t *addrMem, uint8_t delimiter, bool configFromFlash)
 {
-#if MF_CUSTOMDEVICE_SUPPORT == 1
-    char *addrBase = (char *)CustomDeviceConfig;
-#endif
     char     temp   = 0;
     uint16_t length = MFeeprom.get_length();
     do {
 #if MF_CUSTOMDEVICE_SUPPORT == 1
         if (configFromFlash) {
-            temp = pgm_read_byte_near(addrBase + (*addrMem)++);
+            temp = pgm_read_byte_near(CustomDeviceConfig + (*addrMem)++);
             if (*addrMem > configLengthFlash) // abort if config array size will be exceeded
                 return false;
         } else
@@ -323,7 +315,7 @@ bool GetArraySizes(uint8_t *numberDevices, bool configFromFlash)
 
 void InitArrays(uint8_t *numberDevices)
 {
-    // then call the function to allocate required memory for the arrays of each type
+    // Call the function to allocate required memory for the arrays of each type
     if (!Button::setupArray(numberDevices[kTypeButton]))
         sendFailureMessage("Button");
     if (!Output::setupArray(numberDevices[kTypeOutput]))
@@ -400,12 +392,13 @@ void readConfigFromMemory(bool configFromFlash)
                                   // not required anymore when pins instead of names are transferred to the UI
 
     if (!configFromFlash) {
-        addrMem = MEM_OFFSET_CONFIG; // define first memory location where config is saved in EEPROM
+        addrMem = MEM_OFFSET_CONFIG;
     }
 
-    command = readUint(&addrMem, configFromFlash); // read the first value from EEPROM, it's a device definition
+    // read the first value from EEPROM, it's a device definition
+    command = readUint(&addrMem, configFromFlash);
 
-    // go through the EEPROM until it is NULL terminated
+    // go through the EEPROM or Flash until it is NULL terminated
     do {
         switch (command) {
         case kTypeButton:
@@ -549,8 +542,6 @@ void readConfigFromMemory(bool configFromFlash)
             params[5] = readUint(&addrMem, configFromFlash); // 8-bit registers (1-2)
             DigInMux::Add(params[0], params[5], &nameBuffer[pNameBuffer]);
             copy_success = readName(&addrMem, nameBuffer, &pNameBuffer, configFromFlash);
-
-            // cmdMessenger.sendCmd(kDebug, F("Mux loaded"));
             break;
 #endif
 
@@ -572,7 +563,6 @@ void readConfigFromMemory(bool configFromFlash)
                 CustomDevice::Add(adrPin, adrType, adrConfig, configFromFlash);
                 copy_success = readEndCommand(&addrMem, ':', configFromFlash); // check EEPROM until end of command
             }
-            // cmdMessenger.sendCmd(kDebug, F("CustomDevice loaded"));
             break;
         }
 #endif
@@ -591,11 +581,10 @@ void readConfigFromMemory(bool configFromFlash)
 void OnGetConfig()
 {
     bool sentFromFlash = false;
-
     cmdMessenger.sendCmdStart(kInfo);
 #if MF_CUSTOMDEVICE_SUPPORT == 1
     if (configLengthFlash > 0) {
-        cmdMessenger.sendCmdArg((char)pgm_read_byte_near((char *)CustomDeviceConfig));
+        cmdMessenger.sendCmdArg((char)pgm_read_byte_near(CustomDeviceConfig));
         for (uint16_t i = 1; i < configLengthFlash - 1; i++) {
             cmdMessenger.sendArg((char)pgm_read_byte_near(CustomDeviceConfig + i));
         }

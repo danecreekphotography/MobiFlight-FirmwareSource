@@ -2,7 +2,11 @@
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFEEPROM.h"
+#ifdef HAS_CONFIG_IN_FLASH
 #include "MFCustomDevicesConfig.h"
+#else
+const char CustomDeviceConfig[] PROGMEM = {};
+#endif
 
 extern MFEEPROM MFeeprom;
 
@@ -29,11 +33,10 @@ bool MFCustomDevice::getStringFromEEPROM(uint16_t addrMem, char *buffer, bool co
 {
     char     temp     = 0;
     uint8_t  counter  = 0;
-    char    *addrBase = (char *)CustomDeviceConfig;
     uint16_t length   = MFeeprom.get_length();
     do {
         if (configFromFlash) {
-            temp = pgm_read_byte_near(addrBase + addrMem++);
+            temp = pgm_read_byte_near(CustomDeviceConfig + addrMem++);
             if (addrMem > sizeof(CustomDeviceConfig))
                 return false;
         } else {

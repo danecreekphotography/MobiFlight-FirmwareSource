@@ -1,11 +1,7 @@
 #pragma once
 
-#include <Arduino.h>
-
-// If no input custom deivece is defined, uncomment the following line
-// const char CustomDeviceConfig[] PROGMEM = {};
-
-// Otherwise define your input custom devices
+// Define your input custom devices and uncomment -DHAS_CONFIG_IN_FLASH
+// in your MFCustomDevice_platformio.ini
 const char CustomDeviceConfig[] PROGMEM =
     {
         "1.2.Button Flash:"
