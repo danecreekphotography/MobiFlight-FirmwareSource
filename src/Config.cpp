@@ -72,13 +72,13 @@ char serial[11] = MOBIFLIGHT_SERIAL; // 3 characters for "SN-",7 characters for 
 #elif defined(ARDUINO_ARCH_RP2040)
 char serial[3 + UniqueIDsize * 2 + 1] = MOBIFLIGHT_SERIAL; // 3 characters for "SN-", UniqueID as HEX String, terminating NULL
 #endif
-char          name[MEM_LEN_NAME]              = MOBIFLIGHT_NAME;
-const int     MEM_LEN_CONFIG                  = MEMLEN_CONFIG;
-char          nameBuffer[MEMLEN_NAMES_BUFFER] = "";
-uint16_t      configLengthEEPROM              = 0;
-boolean       configActivated                 = false;
-uint16_t      pNameBuffer                     = 0; // pointer for nameBuffer during reading of config
-const uint8_t configLengthFlash               = sizeof(CustomDeviceConfig);
+char           name[MEM_LEN_NAME]              = MOBIFLIGHT_NAME;
+const int      MEM_LEN_CONFIG                  = MEMLEN_CONFIG;
+char           nameBuffer[MEMLEN_NAMES_BUFFER] = "";
+uint16_t       configLengthEEPROM              = 0;
+boolean        configActivated                 = false;
+uint16_t       pNameBuffer                     = 0; // pointer for nameBuffer during reading of config
+const uint16_t configLengthFlash               = sizeof(CustomDeviceConfig);
 
 void resetConfig();
 void readConfig();
@@ -566,7 +566,7 @@ void OnGetConfig()
     cmdMessenger.sendCmdStart(kInfo);
     if (configLengthFlash > 0) {
         cmdMessenger.sendCmdArg((char)pgm_read_byte_near(CustomDeviceConfig));
-        for (uint16_t i = 1; i < configLengthFlash - 1; i++) {
+        for (uint16_t i = 1; i < (configLengthFlash - 1); i++) {
             cmdMessenger.sendArg((char)pgm_read_byte_near(CustomDeviceConfig + i));
         }
         sentFromFlash = true;
