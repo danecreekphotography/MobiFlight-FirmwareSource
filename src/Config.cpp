@@ -72,15 +72,13 @@ char serial[11] = MOBIFLIGHT_SERIAL; // 3 characters for "SN-",7 characters for 
 #elif defined(ARDUINO_ARCH_RP2040)
 char serial[3 + UniqueIDsize * 2 + 1] = MOBIFLIGHT_SERIAL; // 3 characters for "SN-", UniqueID as HEX String, terminating NULL
 #endif
-char      name[MEM_LEN_NAME]              = MOBIFLIGHT_NAME;
-const int MEM_LEN_CONFIG                  = MEMLEN_CONFIG;
-char      nameBuffer[MEMLEN_NAMES_BUFFER] = "";
-uint16_t  configLengthEEPROM              = 0;
-boolean   configActivated                 = false;
-uint16_t  pNameBuffer                     = 0; // pointer for nameBuffer during reading of config
-#if MF_CUSTOMDEVICE_SUPPORT == 1
-const uint8_t configLengthFlash = sizeof(CustomDeviceConfig);
-#endif
+char          name[MEM_LEN_NAME]              = MOBIFLIGHT_NAME;
+const int     MEM_LEN_CONFIG                  = MEMLEN_CONFIG;
+char          nameBuffer[MEMLEN_NAMES_BUFFER] = "";
+uint16_t      configLengthEEPROM              = 0;
+boolean       configActivated                 = false;
+uint16_t      pNameBuffer                     = 0; // pointer for nameBuffer during reading of config
+const uint8_t configLengthFlash               = sizeof(CustomDeviceConfig);
 
 void resetConfig();
 void readConfig();
@@ -124,13 +122,10 @@ void OnSetConfig()
 #ifdef DEBUG2CMDMESSENGER
     cmdMessenger.sendCmd(kDebug, F("Setting config start"));
 #endif
-#if MF_CUSTOMDEVICE_SUPPORT == 1
     // For now a config can only be saved if NO config in flash is available
     // otherwise a config from flash would be sent from the connector
     // and saved in the EEPROM, so the config get's doubled
-    if (configLengthFlash == 0)
-#endif
-    {
+    if (configLengthFlash == 0) {
         char   *cfg    = cmdMessenger.readStringArg();
         uint8_t cfgLen = strlen(cfg);
 
@@ -213,12 +208,9 @@ uint8_t readUint(volatile uint16_t *addrMem, bool configFromFlash)
     char    params[4] = {0}; // max 3 (255) digits NULL terminated
     uint8_t counter   = 0;
     do {
-#if MF_CUSTOMDEVICE_SUPPORT == 1
         if (configFromFlash) {
             params[counter++] = pgm_read_byte_near(CustomDeviceConfig + (*addrMem)++);
-        } else
-#endif
-        {
+        } else {
             params[counter++] = MFeeprom.read_byte((*addrMem)++);
         }
     } while (params[counter - 1] != '.' && counter < sizeof(params)); // reads until limiter '.' and for safety reason not more then size of params[]
@@ -233,14 +225,11 @@ bool readName(uint16_t *addrMem, char *buffer, uint16_t *pBuffer, bool configFro
     char     temp   = 0;
     uint16_t length = MFeeprom.get_length();
     do {
-#if MF_CUSTOMDEVICE_SUPPORT == 1
         if (configFromFlash) {
             temp = pgm_read_byte_near(CustomDeviceConfig + (*addrMem)++); // read the first character
             if (*addrMem > configLengthFlash)                             // abort if config array size will be exceeded
                 return false;
-        } else
-#endif
-        {
+        } else {
             temp = MFeeprom.read_byte((*addrMem)++); // read the first character
             if (*addrMem > length)                   // abort if EEPROM size will be exceeded
                 return false;
@@ -263,14 +252,11 @@ bool readEndCommand(uint16_t *addrMem, uint8_t delimiter, bool configFromFlash)
     char     temp   = 0;
     uint16_t length = MFeeprom.get_length();
     do {
-#if MF_CUSTOMDEVICE_SUPPORT == 1
         if (configFromFlash) {
             temp = pgm_read_byte_near(CustomDeviceConfig + (*addrMem)++);
             if (*addrMem > configLengthFlash) // abort if config array size will be exceeded
                 return false;
-        } else
-#endif
-        {
+        } else {
             temp = MFeeprom.read_byte((*addrMem)++);
             if (*addrMem > length) // abort if EEPROM size will be exceeded
                 return false;
@@ -364,20 +350,16 @@ void InitArrays(uint8_t *numberDevices)
 void readConfig()
 {
     uint8_t numberDevices[kTypeMax] = {0};
-#if MF_CUSTOMDEVICE_SUPPORT == 1
     if (configLengthFlash > 0) {
         GetArraySizes(numberDevices, true);
     }
-#endif
     if (configLengthEEPROM > 0) {
         GetArraySizes(numberDevices, false);
     }
     InitArrays(numberDevices);
-#if MF_CUSTOMDEVICE_SUPPORT == 1
     if (configLengthFlash > 0) {
         readConfigFromMemory(true);
     }
-#endif
     if (configLengthEEPROM > 0) {
         readConfigFromMemory(false);
     }
@@ -582,7 +564,6 @@ void OnGetConfig()
 {
     bool sentFromFlash = false;
     cmdMessenger.sendCmdStart(kInfo);
-#if MF_CUSTOMDEVICE_SUPPORT == 1
     if (configLengthFlash > 0) {
         cmdMessenger.sendCmdArg((char)pgm_read_byte_near(CustomDeviceConfig));
         for (uint16_t i = 1; i < configLengthFlash - 1; i++) {
@@ -590,7 +571,6 @@ void OnGetConfig()
         }
         sentFromFlash = true;
     }
-#endif
     if (configLengthEEPROM > 0) {
         if (sentFromFlash)
             cmdMessenger.sendArg((char)MFeeprom.read_byte(MEM_OFFSET_CONFIG));
