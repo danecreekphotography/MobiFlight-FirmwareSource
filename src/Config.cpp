@@ -135,6 +135,8 @@ void OnSetConfig()
             cmdMessenger.sendCmd(kStatus, configLengthEEPROM);
         } else
             cmdMessenger.sendCmd(kStatus, -1); // last successfull saving block is already NULL terminated, nothing more todo
+    } else {
+        cmdMessenger.sendCmd(kStatus, configLengthEEPROM);
     }
 #ifdef DEBUG2CMDMESSENGER
     cmdMessenger.sendCmd(kDebug, F("Setting config end"));
