@@ -5,7 +5,6 @@
 //
 
 #pragma once
-#include <stdint.h>
 
 namespace InputShifter
 {

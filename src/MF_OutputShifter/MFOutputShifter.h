@@ -25,7 +25,7 @@ public:
     bool attach(uint8_t latchPin, uint8_t clockPin, uint8_t dataPin, uint8_t moduleCount);
     void detach();
     void clear();
-    void updateShiftRegister();
+    void update();
 
 private:
     uint8_t _latchPin;    // Latch pin

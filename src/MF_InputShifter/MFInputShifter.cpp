@@ -31,9 +31,9 @@ bool MFInputShifter::attach(uint8_t latchPin, uint8_t clockPin, uint8_t dataPin,
     if (!FitInMemory(sizeof(uint8_t) * _moduleCount))
         return false;
     
-    _lastState = new (allocateMemory(sizeof(uint8_t) * _moduleCount)) uint8_t;
+    _inputBuffer = new (allocateMemory(sizeof(uint8_t) * _moduleCount)) uint8_t;
     for (uint8_t i = 0; i < _moduleCount; i++) {
-        _lastState[i] = 0;
+        _inputBuffer[i] = 0;
     }
     _initialized = true;
 
@@ -41,6 +41,11 @@ bool MFInputShifter::attach(uint8_t latchPin, uint8_t clockPin, uint8_t dataPin,
     poll(DONT_TRIGGER);
 
     return true;
+}
+
+void MFInputShifter::detach()
+{
+    _initialized = false;
 }
 
 // Reads the values from the attached modules, compares them to the previously
@@ -65,9 +70,9 @@ void MFInputShifter::poll(uint8_t doTrigger)
 
         // If an input changed on the current module from the last time it was read
         // then hand it off to figure out which bits specifically changed.
-        if (currentState != _lastState[module]) {
-            if (doTrigger) detectChanges(_lastState[module], currentState, module);
-            _lastState[module] = currentState;
+        if (currentState != _inputBuffer[module]) {
+            if (doTrigger) detectChanges(_inputBuffer[module], currentState, module);
+            _inputBuffer[module] = currentState;
         }
     }
 
@@ -104,7 +109,7 @@ void MFInputShifter::retrigger()
 
     // Trigger all the released buttons
     for (int module = 0; module < _moduleCount; module++) {
-        state = _lastState[module];
+        state = _inputBuffer[module];
         for (uint8_t i = 0; i < 8; i++) {
             // Only trigger if the button is in the off position
             if (state & 1) {
@@ -116,7 +121,7 @@ void MFInputShifter::retrigger()
 
     // Trigger all the pressed buttons
     for (int module = 0; module < _moduleCount; module++) {
-        state = _lastState[module];
+        state = _inputBuffer[module];
         for (uint8_t i = 0; i < 8; i++) {
             // Only trigger if the button is in the on position
             if (!(state & 1)) {
@@ -140,11 +145,6 @@ void MFInputShifter::trigger(uint8_t pin, bool state)
 void MFInputShifter::attachHandler(inputShifterEvent newHandler)
 {
     _inputHandler = newHandler;
-}
-
-void MFInputShifter::detach()
-{
-    _initialized = false;
 }
 
 // MFInputShifter.cpp

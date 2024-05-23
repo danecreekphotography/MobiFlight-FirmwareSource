@@ -10,8 +10,8 @@
 
 namespace InputShifter
 {
-    MFInputShifter *inputShifters;
-    uint8_t         inputShiftersRegistered = 0;
+    MFInputShifter *inputShifter;
+    uint8_t         inputShifterRegistered = 0;
     uint8_t         maxInputShifter        = 0;
 
     void handlerInputShifterOnChange(uint8_t eventId, uint8_t pin, const char *name)
@@ -27,23 +27,23 @@ namespace InputShifter
     {
         if (!FitInMemory(sizeof(MFInputShifter) * count))
             return false;
-        inputShifters    = new (allocateMemory(sizeof(MFInputShifter) * count)) MFInputShifter;
+        inputShifter    = new (allocateMemory(sizeof(MFInputShifter) * count)) MFInputShifter;
         maxInputShifter = count;
         return true;
     }
 
     void Add(uint8_t latchPin, uint8_t clockPin, uint8_t dataPin, uint8_t modules, char const *name)
     {
-        if (inputShiftersRegistered == maxInputShifter)
+        if (inputShifterRegistered == maxInputShifter)
             return;
-        inputShifters[inputShiftersRegistered] = MFInputShifter();
-        if (!inputShifters[inputShiftersRegistered].attach(latchPin, clockPin, dataPin, modules, name))
+        inputShifter[inputShifterRegistered] = MFInputShifter();
+        if (!inputShifter[inputShifterRegistered].attach(latchPin, clockPin, dataPin, modules, name))
         {
             cmdMessenger.sendCmd(kStatus, F("InputShifter array does not fit into Memory"));
             return;
         }
         MFInputShifter::attachHandler(handlerInputShifterOnChange);
-        inputShiftersRegistered++;
+        inputShifterRegistered++;
 #ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Added input shifter"));
 #endif
@@ -51,10 +51,10 @@ namespace InputShifter
 
     void Clear()
     {
-        for (uint8_t i = 0; i < inputShiftersRegistered; i++) {
-            inputShifters[i].detach();
+        for (uint8_t i = 0; i < inputShifterRegistered; i++) {
+            inputShifter[i].detach();
         }
-        inputShiftersRegistered = 0;
+        inputShifterRegistered = 0;
 #ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Cleared input shifter"));
 #endif
@@ -62,8 +62,8 @@ namespace InputShifter
 
     void read()
     {
-        for (uint8_t i = 0; i < inputShiftersRegistered; i++) {
-            inputShifters[i].update();
+        for (uint8_t i = 0; i < inputShifterRegistered; i++) {
+            inputShifter[i].update();
         }
     }
 
@@ -71,8 +71,8 @@ namespace InputShifter
     {
         // Retrigger all the input shifters. This automatically sends
         // the release events first followed by press events.
-        for (uint8_t i = 0; i < inputShiftersRegistered; i++) {
-            inputShifters[i].retrigger();
+        for (uint8_t i = 0; i < inputShifterRegistered; i++) {
+            inputShifter[i].retrigger();
         }
     }
 

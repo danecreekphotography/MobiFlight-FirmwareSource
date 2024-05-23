@@ -10,7 +10,7 @@
 
 namespace OutputShifter
 {
-    MFOutputShifter *outputShifters;
+    MFOutputShifter *outputShifter;
     uint8_t          outputShifterRegistered = 0;
     uint8_t          maxOutputShifter        = 0;
 
@@ -18,7 +18,7 @@ namespace OutputShifter
     {
         if (!FitInMemory(sizeof(MFOutputShifter) * count))
             return false;
-        outputShifters   = new (allocateMemory(sizeof(MFOutputShifter) * count)) MFOutputShifter;
+        outputShifter   = new (allocateMemory(sizeof(MFOutputShifter) * count)) MFOutputShifter;
         maxOutputShifter = count;
         return true;
     }
@@ -27,8 +27,8 @@ namespace OutputShifter
     {
         if (outputShifterRegistered == maxOutputShifter)
             return;
-        outputShifters[outputShifterRegistered] = MFOutputShifter();
-        if (!outputShifters[outputShifterRegistered].attach(latchPin, clockPin, dataPin, modules))
+        outputShifter[outputShifterRegistered] = MFOutputShifter();
+        if (!outputShifter[outputShifterRegistered].attach(latchPin, clockPin, dataPin, modules))
         {
             cmdMessenger.sendCmd(kStatus, F("OutputShifter array does not fit into Memory"));
             return;
@@ -43,7 +43,7 @@ namespace OutputShifter
     void Clear()
     {
         for (uint8_t i = 0; i < outputShifterRegistered; i++) {
-            outputShifters[i].detach();
+            outputShifter[i].detach();
         }
 
         outputShifterRegistered = 0;
@@ -58,7 +58,7 @@ namespace OutputShifter
         int   module = cmdMessenger.readInt16Arg();
         char *pins   = cmdMessenger.readStringArg();
         int   value  = cmdMessenger.readInt16Arg();
-        outputShifters[module].setPins(pins, value);
+        outputShifter[module].setPins(pins, value);
     }
 } // namespace
 
