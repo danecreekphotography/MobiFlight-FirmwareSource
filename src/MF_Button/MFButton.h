@@ -26,17 +26,19 @@ public:
     MFButton();
     static void attachHandler(buttonEvent newHandler);
     void        attach(uint8_t pin, const char *name);
+    void        detach();
     void        update();
     void        trigger(uint8_t state);
     void        triggerOnPress();
     void        triggerOnRelease();
-    const char *_name;
-    uint8_t     _pin;
 
 private:
-    static buttonEvent _handler;
-    bool               _state;
-    bool               _initialized;
+    const char *_name;
+    uint8_t     _pin;
+    bool        _initialized;
+    bool        _state;
+
+    static buttonEvent _inputHandler;
 };
 
 // MFButton.h

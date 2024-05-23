@@ -37,8 +37,7 @@ namespace InputShifter
         if (inputShifterRegistered == maxInputShifter)
             return;
         inputShifter[inputShifterRegistered] = MFInputShifter();
-        if (!inputShifter[inputShifterRegistered].attach(latchPin, clockPin, dataPin, modules, name))
-        {
+        if (!inputShifter[inputShifterRegistered].attach(latchPin, clockPin, dataPin, modules, name)) {
             cmdMessenger.sendCmd(kStatus, F("InputShifter array does not fit into Memory"));
             return;
         }
@@ -71,8 +70,14 @@ namespace InputShifter
     {
         // Retrigger all the input shifters. This automatically sends
         // the release events first followed by press events.
+
+        // Trigger all button release events first...
         for (uint8_t i = 0; i < inputShifterRegistered; i++) {
-            inputShifter[i].retrigger();
+            inputShifter[i].triggerOnRelease();
+        }
+        // ... then trigger all the press events
+        for (uint8_t i = 0; i < inputShifterRegistered; i++) {
+            inputShifter[i].triggerOnPress();
         }
     }
 
