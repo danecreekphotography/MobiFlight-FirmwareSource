@@ -23,7 +23,6 @@ public:
     MFInputShifter();
     bool        attach(uint8_t latchPin, uint8_t clockPin, uint8_t dataPin, uint8_t moduleCount, const char *name);
     static void attachHandler(inputShifterEvent newHandler);
-    void        clear();
     void        detach();
     void        retrigger();
     void        update();
