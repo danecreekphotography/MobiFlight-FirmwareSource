@@ -97,9 +97,9 @@ namespace CustomDevice
     {
         for (uint8_t i = 0; i < customDeviceRegistered; ++i) {
             if (state)
-                customDevice[i].set(MESSAGEID_POWERSAVINGMODE, F("1"));
+                customDevice[i].set(MESSAGEID_POWERSAVINGMODE, (char*)"1");
             else
-                customDevice[i].set(MESSAGEID_POWERSAVINGMODE, F("0"));
+                customDevice[i].set(MESSAGEID_POWERSAVINGMODE, (char*)"0");
         }
     }
 
