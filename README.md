@@ -2,7 +2,17 @@
 
 PlatformIO version of the MobiFlight firmware source.
 
-To build:
+**Warning**: Before attempting to build the repo you must enable long path
+support in git otherwise you will get a build failure on the Raspberry Pi Pico
+build. To enable long paths type the following in a terminal window:
+
+```powershell
+git config --global core.longpaths true
+```
+
+If you still receive an error then [enable long paths support in Windows](https://www.thewindowsclub.com/how-to-enable-or-disable-win32-long-paths-in-windows-11-10).
+
+## Building
 
 1. Install [Visual Studio Code](https://code.visualstudio.com/Download)
 2. Install the [PlatformIO extension](https://marketplace.visualstudio.com/items?itemName=platformio.platformio-ide). Visual Studio Code will automatically

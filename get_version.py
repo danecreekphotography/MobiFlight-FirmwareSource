@@ -30,3 +30,4 @@ env.Append(CPPDEFINES=[
 
 # Set the output filename to the name of the board and the version
 env.Replace(PROGNAME=f'{env["PIOENV"]}_{firmware_version.replace(".", "_")}')
+
