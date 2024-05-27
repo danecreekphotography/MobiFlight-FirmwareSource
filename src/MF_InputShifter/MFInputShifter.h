@@ -38,7 +38,7 @@ private:
     uint8_t     _dataPin;     // SDO (data) pin
     uint8_t     _moduleCount; // Number of 8 bit modules in series.
     bool        _initialized = false;
-    uint8_t    *_inputBuffer;
+    uint8_t    *_lastState;
 
     void poll(uint8_t doTrigger);
     void detectChanges(uint8_t lastState, uint8_t currentState, uint8_t module);

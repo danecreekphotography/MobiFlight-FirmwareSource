@@ -31,9 +31,9 @@ bool MFInputShifter::attach(uint8_t latchPin, uint8_t clockPin, uint8_t dataPin,
     if (!FitInMemory(sizeof(uint8_t) * _moduleCount))
         return false;
 
-    _inputBuffer = new (allocateMemory(sizeof(uint8_t) * _moduleCount)) uint8_t;
+    _lastState = new (allocateMemory(sizeof(uint8_t) * _moduleCount)) uint8_t;
     for (uint8_t i = 0; i < _moduleCount; i++) {
-        _inputBuffer[i] = 0;
+        _lastState[i] = 0;
     }
     _initialized = true;
 
@@ -70,9 +70,9 @@ void MFInputShifter::poll(uint8_t doTrigger)
 
         // If an input changed on the current module from the last time it was read
         // then hand it off to figure out which bits specifically changed.
-        if (currentState != _inputBuffer[module]) {
-            if (doTrigger) detectChanges(_inputBuffer[module], currentState, module);
-            _inputBuffer[module] = currentState;
+        if (currentState != _lastState[module]) {
+            if (doTrigger) detectChanges(_lastState[module], currentState, module);
+            _lastState[module] = currentState;
         }
     }
 
@@ -116,7 +116,7 @@ void MFInputShifter::triggerOnPress()
 
     // Trigger all the pressed buttons
     for (int module = 0; module < _moduleCount; module++) {
-        state = _inputBuffer[module];
+        state = _lastState[module];
         for (uint8_t i = 0; i < 8; i++) {
             // Only trigger if the button is in the on position
             if (!(state & 1)) {
@@ -139,7 +139,7 @@ void MFInputShifter::triggerOnRelease()
 
     // Trigger all the released buttons
     for (int module = 0; module < _moduleCount; module++) {
-        state = _inputBuffer[module];
+        state = _lastState[module];
         for (uint8_t i = 0; i < 8; i++) {
             // Only trigger if the button is in the off position
             if (state & 1) {
