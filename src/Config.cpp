@@ -173,7 +173,13 @@ void resetConfig()
     DigInMux::Clear();
 #endif
 #if MF_CUSTOMDEVICE_SUPPORT == 1
+#if defined(USE_2ND_CORE)
+    CustomDevice::stopUpdate2ndCore(true);
+#endif
     CustomDevice::Clear();
+#if defined(USE_2ND_CORE)
+    CustomDevice::stopUpdate2ndCore(false);
+#endif
 #endif
     configLengthEEPROM = 0;
     configActivated    = false;
