@@ -17,6 +17,9 @@ namespace Stepper
     void update();
     void OnSetSpeedAccel();
     void PowerSave(bool state);
+#if defined(STEPPER_ON_2ND_CORE)
+    void stopUpdate2ndCore(bool stop);
+#endif
 }
 
 // Stepper.h

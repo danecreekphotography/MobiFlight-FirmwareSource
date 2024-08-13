@@ -155,7 +155,13 @@ void resetConfig()
     Servos::Clear();
 #endif
 #if MF_STEPPER_SUPPORT == 1
+#if defined(STEPPER_ON_2ND_CORE)
+    Stepper::stopUpdate2ndCore(true);
+#endif
     Stepper::Clear();
+#if defined(STEPPER_ON_2ND_CORE)
+    Stepper::stopUpdate2ndCore(false);
+#endif
 #endif
 #if MF_LCD_SUPPORT == 1
     LCDDisplay::Clear();

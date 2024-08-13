@@ -117,13 +117,15 @@ namespace CustomDevice
     {
         for (uint8_t i = 0; i < customDeviceRegistered; ++i) {
             if (state)
-                customDevice[i].set(MESSAGEID_POWERSAVINGMODE, (char*)"1");
+                customDevice[i].set(MESSAGEID_POWERSAVINGMODE, (char *)"1");
             else
-                customDevice[i].set(MESSAGEID_POWERSAVINGMODE, (char*)"0");
+                customDevice[i].set(MESSAGEID_POWERSAVINGMODE, (char *)"0");
         }
     }
 
-    void stopUpdate2ndCore(bool stop) {
+#if defined(STEPPER_ON_2ND_CORE)
+    void stopUpdate2ndCore(bool stop)
+    {
         // wait for 2nd core
         rp2040.fifo.pop();
         // send command to stop/start updating to 2nd core
@@ -136,6 +138,7 @@ namespace CustomDevice
         // wait for execution of command
         rp2040.fifo.pop();
     }
+#endif
 } // end of namespace
 
 #if defined(USE_2ND_CORE)
@@ -157,7 +160,7 @@ void loop1()
     int16_t device;
     int16_t messageID;
     char   *payload;
-    bool stopUpdating = false;
+    bool    stopUpdating = false;
 #ifdef MF_CUSTOMDEVICE_POLL_MS
     uint32_t lastMillis = 0;
 #endif
@@ -168,7 +171,7 @@ void loop1()
 #endif
 #if defined(MF_CUSTOMDEVICE_HAS_UPDATE)
             for (int i = 0; i < CustomDevice::customDeviceRegistered && !stopUpdating; i++) {
-                    CustomDevice::customDevice[i].update();
+                CustomDevice::customDevice[i].update();
             }
 #endif
 #ifdef MF_CUSTOMDEVICE_POLL_MS
@@ -181,7 +184,7 @@ void loop1()
             device    = (int16_t)rp2040.fifo.pop();
             messageID = (int16_t)rp2040.fifo.pop();
             payload   = (char *)rp2040.fifo.pop();
-            if (device == -1 ) {
+            if (device == -1) {
                 stopUpdating = (bool)messageID;
                 // inform core 0 that command has been executed
                 // it's additional needed in this case

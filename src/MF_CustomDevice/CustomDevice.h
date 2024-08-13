@@ -10,5 +10,7 @@ namespace CustomDevice
     void update();
     void OnSet();
     void PowerSave(bool state);
+#if defined(STEPPER_ON_2ND_CORE)
     void stopUpdate2ndCore(bool stop);
+#endif
 }
