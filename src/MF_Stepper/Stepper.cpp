@@ -7,7 +7,7 @@
 #include "mobiflight.h"
 #include "MFStepper.h"
 #include "Stepper.h"
-#if defined(STEPPER_ON_2ND_CORE)
+#if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
 #include <FreeRTOS.h>
 #endif
 
@@ -72,7 +72,7 @@ namespace Stepper
 
         if (stepper >= steppersRegistered)
             return;
-#if defined(STEPPER_ON_2ND_CORE)
+#if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
         // wait for 2nd core
         rp2040.fifo.pop();
         rp2040.fifo.push(FUNC_MOVETO);
@@ -99,7 +99,7 @@ namespace Stepper
 
         if (stepper >= steppersRegistered)
             return;
-#if defined(STEPPER_ON_2ND_CORE)
+#if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
         // wait for 2nd core
         rp2040.fifo.pop();
         rp2040.fifo.push(FUNC_ZETZERO);
@@ -119,7 +119,7 @@ namespace Stepper
 
         if (stepper >= steppersRegistered)
             return;
-#if defined(STEPPER_ON_2ND_CORE)
+#if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
         rp2040.fifo.pop(); // wait for 2nd core
         rp2040.fifo.push(FUNC_SPEEDACCEL);
         rp2040.fifo.push(stepper);
@@ -147,7 +147,7 @@ namespace Stepper
         }
     }
 
-#if defined(STEPPER_ON_2ND_CORE)
+#if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
     void stopUpdate2ndCore(bool stop)
     {
         // wait for 2nd core
@@ -164,7 +164,7 @@ namespace Stepper
 #endif
 } // namespace
 
-#if defined(STEPPER_ON_2ND_CORE)
+#if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
 /* **********************************************************************************
     This will run the set() function from the custom device on the 2nd core
     Be aware NOT to use the function calls from the Pico SDK!

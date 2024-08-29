@@ -155,11 +155,11 @@ void resetConfig()
     Servos::Clear();
 #endif
 #if MF_STEPPER_SUPPORT == 1
-#if defined(STEPPER_ON_2ND_CORE)
+#if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
     Stepper::stopUpdate2ndCore(true);
 #endif
     Stepper::Clear();
-#if defined(STEPPER_ON_2ND_CORE)
+#if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
     Stepper::stopUpdate2ndCore(false);
 #endif
 #endif
@@ -179,11 +179,11 @@ void resetConfig()
     DigInMux::Clear();
 #endif
 #if MF_CUSTOMDEVICE_SUPPORT == 1
-#if defined(USE_2ND_CORE)
+#if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
     CustomDevice::stopUpdate2ndCore(true);
 #endif
     CustomDevice::Clear();
-#if defined(USE_2ND_CORE)
+#if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
     CustomDevice::stopUpdate2ndCore(false);
 #endif
 #endif
