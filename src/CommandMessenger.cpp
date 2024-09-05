@@ -54,6 +54,7 @@ void attachCommandCallbacks()
     cmdMessenger.attach(kInitModule, LedSegment::OnInitModule);
     cmdMessenger.attach(kSetModule, LedSegment::OnSetModule);
     cmdMessenger.attach(kSetModuleBrightness, LedSegment::OnSetModuleBrightness);
+    cmdMessenger.attach(kSetModuleSingleSegment, LedSegment::OnSetModuleSingleSegment);
 #endif
 
     cmdMessenger.attach(kSetPin, Output::OnSet);

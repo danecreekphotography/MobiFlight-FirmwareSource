@@ -27,8 +27,15 @@ namespace LedSegment
     {
         if (ledSegmentsRegistered == ledSegmentsRegistereds)
             return;
+
         ledSegments[ledSegmentsRegistered] = MFSegments();
-        ledSegments[ledSegmentsRegistered].attach(type, dataPin, csPin, clkPin, numDevices, brightness);
+
+        if (!ledSegments[ledSegmentsRegistered].attach(type, dataPin, csPin, clkPin, numDevices, brightness))
+        {
+            cmdMessenger.sendCmd(kStatus, F("Led Segment array does not fit into Memory"));
+            return;
+        }
+
         ledSegmentsRegistered++;
 #ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Added Led Segment"));
@@ -78,6 +85,22 @@ namespace LedSegment
         int brightness = cmdMessenger.readInt16Arg();
         ledSegments[module].setBrightness(subModule, brightness);
     }
+
+    void OnSetModuleSingleSegment()
+    {
+        uint8_t module     = (uint8_t)cmdMessenger.readInt16Arg();
+        uint8_t subModule  = (uint8_t)cmdMessenger.readInt16Arg();
+        char *segment      = cmdMessenger.readStringArg();              // 0 to 63, multiple segments deliminited by '|'
+        uint8_t on_off     = (uint8_t)cmdMessenger.readInt16Arg();      // 0 or 1
+
+        char *pinTokens = strtok(segment, "|");
+        while (pinTokens != 0) {
+            uint8_t num = (uint8_t)atoi(pinTokens);
+            ledSegments[module].setSingleSegment(subModule, num, on_off);
+            pinTokens = strtok(0, "|");
+        }
+    }
+    
 } // namespace
 
 // LedSegment.cpp

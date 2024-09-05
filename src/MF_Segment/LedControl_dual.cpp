@@ -5,6 +5,7 @@
 //
 
 #include "LedControl_dual.h"
+#include "allocateMem.h"
 
 // Segments to be switched on for characters and digits on 7-Segment Displays
 // bit/segment sequence: dABCDEFG
@@ -73,7 +74,7 @@ enum {
 };
 
 #ifdef LEDCONTROL_NO_BUF
-uint8_t LedControl::rawdata[16] = {0};
+uint8_t *LedControl::rawdata;
 #endif
 
 // =======================================================================
@@ -132,15 +133,24 @@ uint8_t LedControl::rawdata[16] = {0};
 // Digit sequence map for 6 digit displays
 const uint8_t digitmap[] = {2, 1, 0, 5, 4, 3};
 
-void LedControl::begin(uint8_t type, uint8_t dataPin, uint8_t clkPin, uint8_t csPin, uint8_t numDevices)
+bool LedControl::begin(uint8_t type, uint8_t dataPin, uint8_t clkPin, uint8_t csPin, uint8_t numDevices)
 {
     _type    = type;
     _dataPin = dataPin;
     _clkPin  = clkPin;
     _csPin   = csPin;
 
+    if (!FitInMemory(sizeof(uint8_t) * numDevices * 2))
+        return false;
+    rawdata = new (allocateMemory(sizeof(uint8_t) * numDevices * 2)) uint8_t;
+
     if (isMAX()) {
-        if ((numDevices - 1) > 7) numDevices = 8;
+        // make sure we have max 8 chips in the daisy chain
+        if (numDevices > 8) numDevices = 8;
+
+        if (!FitInMemory(sizeof(uint8_t) * numDevices * 8))
+            return false;
+        digitBuffer = new (allocateMemory(sizeof(uint8_t) * numDevices * 8)) uint8_t;
         maxUnits = numDevices;
         pinMode(_dataPin, OUTPUT);
         pinMode(_clkPin, OUTPUT);
@@ -165,6 +175,8 @@ void LedControl::begin(uint8_t type, uint8_t dataPin, uint8_t clkPin, uint8_t cs
         brightness = MAX_BRIGHTNESS;
         shutdown(0, true);
     }
+
+    return true;
 }
 
 void LedControl::shutdown(uint8_t addr, bool b)
@@ -238,13 +250,48 @@ void LedControl::setChar(uint8_t addr, uint8_t digit, char value, bool dp, bool 
     setPattern(addr, digit, v, sendNow);
 }
 
+void LedControl::setSingleSegment(uint8_t subModule, uint8_t segment, uint8_t value, bool sendNow)
+{
+    uint8_t digit = segment >> 3;
+    uint8_t bitPosition = segment % 8;
+    uint8_t offset = subModule * 8;
+
+    if (isMAX()) {
+        if (subModule >= maxUnits) return;
+        if (segment > 63) return;
+        if (value) {
+            digitBuffer[offset + digit] |= (1 << bitPosition);   
+        } else {
+            digitBuffer[offset + digit] &= ~(1 << bitPosition);
+        }
+        spiTransfer(subModule, digit + 1, digitBuffer[offset + digit]);
+    } else {
+        if (subModule >= maxUnits) return;
+        if (segment >= maxUnits * 8) return;
+        // Same order as MAX72XX
+        // MAX72XX order is:      dABCDEFG
+        // TM1637 order required: ABCDEFGd
+        bitPosition++;
+        if (bitPosition == 8)
+            bitPosition = 0;
+        if (value) {
+            rawdata[(maxUnits - 1) - digit] |= (1 << bitPosition);   
+        } else {
+            rawdata[(maxUnits - 1) - digit] &= ~(1 << bitPosition);
+        }
+        if (sendNow) writeDigits(digit, 1);
+    }
+}
+
 void LedControl::setPattern(uint8_t addr, uint8_t digit, uint8_t value, bool sendNow)
 {
     if (digit > getDigitCount() - 1) return;
     uint8_t v;
     v = pgm_read_byte_near(charTable + (value & 0x7F));
     if (isMAX()) {
+        uint8_t offset = addr * 8;
         if (value & 0x80) v |= 0x80;
+        digitBuffer[offset + digit] = v;
         spiTransfer(addr, digit + 1, v); // Always send immediately for MAX
     } else {
         // Original data for MAX has the bit sequence: dABCDEFG

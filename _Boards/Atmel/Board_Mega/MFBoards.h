@@ -39,9 +39,6 @@
 #ifndef MOBIFLIGHT_TYPE
 #define MOBIFLIGHT_TYPE     "MobiFlight Mega"
 #endif
-#ifndef MOBIFLIGHT_SERIAL
-#define MOBIFLIGHT_SERIAL   "1234567890"
-#endif
 #ifndef MOBIFLIGHT_NAME
 #define MOBIFLIGHT_NAME     "MobiFlight Mega"
 #endif
