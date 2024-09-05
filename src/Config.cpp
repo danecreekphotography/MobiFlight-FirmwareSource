@@ -122,7 +122,7 @@ void OnSetConfig()
 #ifdef DEBUG2CMDMESSENGER
     cmdMessenger.sendCmd(kDebug, F("Setting config start"));
 #endif
-    // A config can be in flash or in EEPROM, bur only one must be used
+    // A config can be in flash or in EEPROM, but only one option must be used
     // Once a config is in EEPROM, this config will be loaded and reported to the connector
     // If no config is in EEPROM, the config from flash will be used if available
     // This ensures backwards compatibility if a board gets updated with a config in flash
