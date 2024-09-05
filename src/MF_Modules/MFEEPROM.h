@@ -19,6 +19,11 @@ public:
     uint16_t get_length(void);
     uint8_t read_byte(uint16_t adr);
     bool write_byte(uint16_t adr, const uint8_t data);
+    void commit() {
+#if !defined(ARDUINO_ARCH_AVR)
+        EEPROM.commit();
+#endif
+    }
 
     template <typename T>
     bool read_block(uint16_t adr, T &t)
@@ -44,9 +49,6 @@ public:
     {
         if (adr + sizeof(T) > _eepromLength) return false;
         EEPROM.put(adr, t);
-#if defined(ARDUINO_ARCH_RP2040)
-        EEPROM.commit();
-#endif
         return true;
     }
 
@@ -57,9 +59,6 @@ public:
         for (uint16_t i = 0; i < len; i++) {
             EEPROM.put(adr + i, t[i]);
         }
-#if defined(ARDUINO_ARCH_RP2040)
-        EEPROM.commit();
-#endif
         return true;
     }
 };
