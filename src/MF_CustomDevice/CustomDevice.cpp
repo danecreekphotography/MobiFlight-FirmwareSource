@@ -1,7 +1,7 @@
 #include "mobiflight.h"
 #include "CustomDevice.h"
 #include "MFCustomDevice.h"
-#if defined(USE_2ND_CORE)
+#if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
 #include <FreeRTOS.h>
 #endif
 
@@ -92,7 +92,7 @@ namespace CustomDevice
         int16_t messageID = cmdMessenger.readInt16Arg();  // get the messageID number
         char   *output    = cmdMessenger.readStringArg(); // get the pointer to the new raw string
         cmdMessenger.unescape(output);                    // and unescape the string if escape characters are used
-#if defined(USE_2ND_CORE)
+#if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
         // copy the message, could get be overwritten from the next message while processing on 2nd core
         strncpy(payload, output, SERIAL_RX_BUFFER_SIZE);
         // wait for 2nd core
@@ -117,14 +117,31 @@ namespace CustomDevice
     {
         for (uint8_t i = 0; i < customDeviceRegistered; ++i) {
             if (state)
-                customDevice[i].set(MESSAGEID_POWERSAVINGMODE, (char*)"1");
+                customDevice[i].set(MESSAGEID_POWERSAVINGMODE, (char *)"1");
             else
-                customDevice[i].set(MESSAGEID_POWERSAVINGMODE, (char*)"0");
+                customDevice[i].set(MESSAGEID_POWERSAVINGMODE, (char *)"0");
         }
     }
+
+#if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
+    void stopUpdate2ndCore(bool stop)
+    {
+        // wait for 2nd core
+        rp2040.fifo.pop();
+        // send command to stop/start updating to 2nd core
+        // negative device numbers are for commands to 2nd core
+        rp2040.fifo.push(START_STOP_2ND_CORE);
+        // send stop/start
+        rp2040.fifo.push(stop);
+        // communication is always done using 3 messages
+        rp2040.fifo.push(0);
+        // wait for execution of command
+        rp2040.fifo.pop();
+    }
+#endif
 } // end of namespace
 
-#if defined(USE_2ND_CORE)
+#if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
 /* **********************************************************************************
     This will run the set() function from the custom device on the 2nd core
     Be aware NOT to use the function calls from the Pico SDK!
@@ -140,45 +157,45 @@ void setup1()
 
 void loop1()
 {
-    uint8_t device;
+    int16_t device;
     int16_t messageID;
     char   *payload;
+    bool    stopUpdating = false;
 #ifdef MF_CUSTOMDEVICE_POLL_MS
     uint32_t lastMillis = 0;
 #endif
 
     while (1) {
-#ifndef MF_CUSTOMDEVICE_POLL_MS
-        // For now I don't know the reason why this is required.
-        // It might be that getting the stop command from the 1st core
-        // needs some idle time. If it is not used the 1st core stops when
-        // writing to the EEPROM which stops the 2nd core
-        delayMicroseconds(1);
-#endif  
 #ifdef MF_CUSTOMDEVICE_POLL_MS
         if (millis() - lastMillis >= MF_CUSTOMDEVICE_POLL_MS) {
 #endif
-            for (int i = 0; i != CustomDevice::customDeviceRegistered; i++) {
 #if defined(MF_CUSTOMDEVICE_HAS_UPDATE)
+            for (int i = 0; i < CustomDevice::customDeviceRegistered && !stopUpdating; i++) {
                 CustomDevice::customDevice[i].update();
-#endif
-                if (rp2040.fifo.available() == 3) {
-                    // Hmhm, how to get the function pointer to a function from class??
-                    // int32_t (*func)(int16_t, char*) = (int32_t(*)(int16_t, char*)) rp2040.fifo.pop();
-                    device    = (uint8_t)rp2040.fifo.pop();
-                    messageID = (int16_t)rp2040.fifo.pop();
-                    payload   = (char *)rp2040.fifo.pop();
-                    // (*func)(messageID, payload);
-                    CustomDevice::customDevice[device].set(messageID, payload);
-                    // send ready for next message to 1st core
-                    rp2040.fifo.push(true);
-                }
-
             }
+#endif
 #ifdef MF_CUSTOMDEVICE_POLL_MS
             lastMillis = millis();
         }
 #endif
+        if (rp2040.fifo.available() == 3) {
+            // Hmhm, how to get the function pointer to a function from class??
+            // int32_t (*func)(int16_t, char*) = (int32_t(*)(int16_t, char*)) rp2040.fifo.pop();
+            device    = (int16_t)rp2040.fifo.pop();
+            messageID = (int16_t)rp2040.fifo.pop();
+            payload   = (char *)rp2040.fifo.pop();
+            if (device == -1) {
+                stopUpdating = (bool)messageID;
+                // inform core 0 that command has been executed
+                // it's additional needed in this case
+                rp2040.fifo.push(true);
+            } else {
+                // (*func)(messageID, payload);
+                CustomDevice::customDevice[device].set(messageID, payload);
+            }
+            // send ready for next message to 1st core
+            rp2040.fifo.push(true);
+        }
     }
 }
 #endif

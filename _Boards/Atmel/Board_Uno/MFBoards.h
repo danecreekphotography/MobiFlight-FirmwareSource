@@ -39,9 +39,6 @@
 #ifndef MOBIFLIGHT_TYPE
 #define MOBIFLIGHT_TYPE     "MobiFlight Uno"
 #endif
-#ifndef MOBIFLIGHT_SERIAL
-#define MOBIFLIGHT_SERIAL   "0987654321"
-#endif
 #ifndef MOBIFLIGHT_NAME
 #define MOBIFLIGHT_NAME     "MobiFlight Uno"
 #endif

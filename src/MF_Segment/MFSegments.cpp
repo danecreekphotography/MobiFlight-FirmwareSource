@@ -5,6 +5,7 @@
 //
 
 #include "MFSegments.h"
+#include "commandmessenger.h"
 
 MFSegments::MFSegments()
 {
@@ -26,10 +27,20 @@ void MFSegments::display(uint8_t module, char *string, uint8_t points, uint8_t m
     }
 }
 
+void MFSegments::setSingleSegment(uint8_t module, uint8_t segment, uint8_t on_off)
+{
+    if (_moduleCount == 0)
+        return;
+    
+    _ledControl.setSingleSegment(module, segment, on_off);
+
+}
+
 void MFSegments::setBrightness(uint8_t module, uint8_t value)
 {
     if (_moduleCount == 0)
         return;
+
     if (module < _moduleCount) {
         if (value) {
             _ledControl.setIntensity(module, value - 1);
@@ -40,15 +51,20 @@ void MFSegments::setBrightness(uint8_t module, uint8_t value)
     }
 }
 
-void MFSegments::attach(uint8_t type, uint8_t dataPin, uint8_t csPin, uint8_t clkPin, uint8_t moduleCount, uint8_t brightness)
+bool MFSegments::attach(uint8_t type, uint8_t dataPin, uint8_t csPin, uint8_t clkPin, uint8_t moduleCount, uint8_t brightness)
 {
-    _ledControl.begin(type, dataPin, clkPin, csPin, moduleCount);
+    if (!_ledControl.begin(type, dataPin, clkPin, csPin, moduleCount))
+        return false;
+
     _moduleCount = moduleCount;
+
     for (uint8_t i = 0; i < _moduleCount; ++i) {
         setBrightness(i, brightness);
         _ledControl.shutdown(i, false);
         _ledControl.clearDisplay(i);
     }
+
+    return true;
 }
 
 void MFSegments::detach()

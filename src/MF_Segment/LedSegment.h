@@ -22,6 +22,7 @@ namespace LedSegment
     void OnInitModule();
     void OnSetModule();
     void OnSetModuleBrightness();
+    void OnSetModuleSingleSegment();
 }
 
 // LedSegment.h

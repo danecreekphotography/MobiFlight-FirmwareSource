@@ -9,7 +9,7 @@
 #include "Button.h"
 #include "Encoder.h"
 #include "Output.h"
-#if defined(ARDUINO_ARCH_RP2040)
+#if !defined(ARDUINO_ARCH_AVR)
 #include "ArduinoUniqueID.h"
 #endif
 
@@ -68,9 +68,9 @@ const uint8_t MEM_LEN_SERIAL    = 11;
 const uint8_t MEM_OFFSET_CONFIG = MEM_OFFSET_NAME + MEM_LEN_NAME + MEM_LEN_SERIAL;
 
 #if defined(ARDUINO_ARCH_AVR)
-char serial[11] = MOBIFLIGHT_SERIAL; // 3 characters for "SN-",7 characters for "xyz-zyx" plus terminating NULL
-#elif defined(ARDUINO_ARCH_RP2040)
-char serial[3 + UniqueIDsize * 2 + 1] = MOBIFLIGHT_SERIAL; // 3 characters for "SN-", UniqueID as HEX String, terminating NULL
+char serial[11]; // 3 characters for "SN-",7 characters for "xyz-zyx" plus terminating NULL
+#else
+char serial[3 + UniqueIDsize * 2 + 1]; // 3 characters for "SN-", UniqueID as HEX String, terminating NULL
 #endif
 char           name[MEM_LEN_NAME]              = MOBIFLIGHT_NAME;
 const int      MEM_LEN_CONFIG                  = MEMLEN_CONFIG;
@@ -153,7 +153,13 @@ void resetConfig()
     Servos::Clear();
 #endif
 #if MF_STEPPER_SUPPORT == 1
+#if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
+    Stepper::stopUpdate2ndCore(true);
+#endif
     Stepper::Clear();
+#if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
+    Stepper::stopUpdate2ndCore(false);
+#endif
 #endif
 #if MF_LCD_SUPPORT == 1
     LCDDisplay::Clear();
@@ -171,7 +177,13 @@ void resetConfig()
     DigInMux::Clear();
 #endif
 #if MF_CUSTOMDEVICE_SUPPORT == 1
+#if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
+    CustomDevice::stopUpdate2ndCore(true);
+#endif
     CustomDevice::Clear();
+#if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
+    CustomDevice::stopUpdate2ndCore(false);
+#endif
 #endif
     configLengthEEPROM = 0;
     configActivated    = false;
@@ -599,8 +611,15 @@ bool getStatusConfig()
 // ************************************************************
 // serial number handling
 // ************************************************************
+
+// Generate a serial number only for AVR's
+#if defined(ARDUINO_ARCH_AVR)
 void generateRandomSerial()
 {
+    // To have not always the same starting point for the random generator, millis() are
+    // used as starting point. It is very unlikely that the time between flashing the firmware
+    // and getting the command to send the info's to the connector is always the same.
+    // additional double check if it's really a new board, should reduce Jaimes problem
     randomSeed(millis());
     serial[0]             = 'S';
     serial[1]             = 'N';
@@ -620,10 +639,13 @@ void generateRandomSerial()
         randomSerial >>= 4;
     }
     MFeeprom.write_block(MEM_OFFSET_SERIAL, serial, MEM_LEN_SERIAL);
+#ifdef DEBUG2CMDMESSENGER
     cmdMessenger.sendCmd(kDebug, F("Serial number generated"));
+#endif
 }
+#endif
 
-#if defined(ARDUINO_ARCH_RP2040)
+#if !defined(ARDUINO_ARCH_AVR)
 void readUniqueSerial()
 {
     serial[0] = 'S';
@@ -642,44 +664,37 @@ void generateSerial(bool force)
 {
     if (force) {
         // A serial number is forced to generate
-        // generate a serial number acc. the old style also for the Pico
+        // generate a serial number acc. the old style only for AVR's
+#if defined(ARDUINO_ARCH_AVR)
         generateRandomSerial();
+#else
+        // For other boards always the UniqueID is used.
+        readUniqueSerial();
+        // If there is always a serial number acc. old style and the user
+        // requests a new one, he will get the UniqueID and it's marked in the EEPROM
+        if (MFeeprom.read_byte(MEM_OFFSET_SERIAL) == 'S' && MFeeprom.read_byte(MEM_OFFSET_SERIAL + 1) == 'N') {
+            MFeeprom.write_byte(MEM_OFFSET_SERIAL, 0x00);
+        }
+#endif
         return;
     }
 
     // A serial number according old style is already generated and saved to the eeprom
+    // For other boards this is kept for backwards compatibility
     if (MFeeprom.read_byte(MEM_OFFSET_SERIAL) == 'S' && MFeeprom.read_byte(MEM_OFFSET_SERIAL + 1) == 'N') {
         MFeeprom.read_block(MEM_OFFSET_SERIAL, serial, MEM_LEN_SERIAL);
         return;
     }
 
-    // A uniqueID is already generated and saved to the eeprom
-    if (MFeeprom.read_byte(MEM_OFFSET_SERIAL) == 'I' && MFeeprom.read_byte(MEM_OFFSET_SERIAL + 1) == 'D') {
 #if defined(ARDUINO_ARCH_AVR)
-        generateRandomSerial();
-#elif defined(ARDUINO_ARCH_RP2040)
-        readUniqueSerial();
-#endif
-        return;
-    }
-
-    // Coming here no UniqueID and no serial number is available, so it's the first start up of a board
-#if defined(ARDUINO_ARCH_AVR)
-    // Generate a serial number for AVR's
-    // To have not always the same starting point for the random generator, millis() are
-    // used as starting point. It is very unlikely that the time between flashing the firmware
-    // and getting the command to send the info's to the connector is always the same.
-    // additional double check if it's really a new board, should reduce Jaimes problem
+    // Coming here no serial number is available (so it's the first start up of an AVR board)
+    // or a uniqueID is already generated and saved to the eeprom
+    // AVR's are forced to roll back to "old style" serial number
     generateRandomSerial();
-#elif defined(ARDUINO_ARCH_RP2040)
-    // Read the uniqueID for Pico's and use it as serial number
+#else
+    // other boards always uses the UniqueID
     readUniqueSerial();
-    // mark this in the eeprom that a UniqueID is used on first start up for Pico's
-    MFeeprom.write_block(MEM_OFFSET_SERIAL, "ID", 2);
 #endif
-    if (MFeeprom.read_byte(MEM_OFFSET_CONFIG) == 0xFF) {
-        MFeeprom.write_block(MEM_OFFSET_CONFIG, 0x00);
-    }
 }
 
 void OnGenNewSerial()
