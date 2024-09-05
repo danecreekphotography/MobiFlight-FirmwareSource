@@ -130,7 +130,8 @@ void OnSetConfig()
     char   *cfg    = cmdMessenger.readStringArg();
     uint8_t cfgLen = strlen(cfg);
 
-    if (configLengthEEPROM + cfgLen + 1 < MEM_LEN_CONFIG) {
+   bool maxConfigLengthNotExceeded = configLengthEEPROM + cfgLen + 1 < MEM_LEN_CONFIG;
+    if (maxConfigLengthNotExceeded) {
         MFeeprom.write_block(MEM_OFFSET_CONFIG + configLengthEEPROM, cfg, cfgLen + 1); // save the received config string including the terminatung NULL (+1) to EEPROM
         configLengthEEPROM += cfgLen;
         cmdMessenger.sendCmd(kStatus, configLengthEEPROM);
