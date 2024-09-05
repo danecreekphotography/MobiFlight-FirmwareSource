@@ -79,11 +79,14 @@ uint16_t       configLengthEEPROM              = 0;
 boolean        configActivated                 = false;
 uint16_t       pNameBuffer                     = 0; // pointer for nameBuffer during reading of config
 const uint16_t configLengthFlash               = sizeof(CustomDeviceConfig);
+// if config is in EEPROM, ensure upload a new config even if a config in flash is available
+bool configEEPROMavailable = false;
 
 void resetConfig();
 void readConfig();
 void _activateConfig();
 void readConfigFromMemory(bool configFromFlash);
+
 bool configStoredInFlash()
 {
     return configLengthFlash > 0;
@@ -112,6 +115,7 @@ bool readconfigLengthEEPROM()
             return false;
         }
     }
+    configEEPROMavailable = true;
     return true;
 }
 
@@ -138,16 +142,24 @@ void OnSetConfig()
     char   *cfg    = cmdMessenger.readStringArg();
     uint8_t cfgLen = strlen(cfg);
 
-    bool maxConfigLengthNotExceeded = configLengthEEPROM + cfgLen + 1 < MEM_LEN_CONFIG;
-    if (maxConfigLengthNotExceeded) {
-        MFeeprom.write_block(MEM_OFFSET_CONFIG + configLengthEEPROM, cfg, cfgLen + 1); // save the received config string including the terminatung NULL (+1) to EEPROM
-        configLengthEEPROM += cfgLen;
-        cmdMessenger.sendCmd(kStatus, configLengthEEPROM);
-    } else
-        cmdMessenger.sendCmd(kStatus, -1); // last successfull saving block is already NULL terminated, nothing more todo
+    if (configEEPROMavailable || !configStoredInFlash()) {
+        bool maxConfigLengthNotExceeded = configLengthEEPROM + cfgLen + 1 < MEM_LEN_CONFIG;
+        if (maxConfigLengthNotExceeded) {
+            // save the received config string including the terminatung NULL (+1) to EEPROM
+            MFeeprom.write_block(MEM_OFFSET_CONFIG + configLengthEEPROM, cfg, cfgLen + 1);
+            configLengthEEPROM += cfgLen;
+            cmdMessenger.sendCmd(kStatus, configLengthEEPROM);
+        } else
+            // staus message to connector, failure on setting config
+            // connector does not check for status = -1
+            cmdMessenger.sendCmd(kStatus, -1);
 #ifdef DEBUG2CMDMESSENGER
-    cmdMessenger.sendCmd(kDebug, F("Setting config end"));
+        cmdMessenger.sendCmd(kDebug, F("Setting config end"));
 #endif
+    } else {
+        // connector does not check for status = -1
+        cmdMessenger.sendCmd(kStatus, -1);
+    }
 }
 
 void resetConfig()
@@ -718,7 +730,7 @@ void OnGenNewSerial()
 // ************************************************************
 void storeName()
 {
-    if (!configStoredInFlash()) {
+    if (configStoredInEEPROM() || !configStoredInFlash()) {
         MFeeprom.write_byte(MEM_OFFSET_NAME, '#');
         MFeeprom.write_block(MEM_OFFSET_NAME + 1, name, MEM_LEN_NAME - 1);
     }
@@ -735,7 +747,7 @@ void restoreName()
 void OnSetName()
 {
     char *cfg = cmdMessenger.readStringArg();
-    if (!configStoredInFlash()) {
+    if (configStoredInEEPROM() || !configStoredInFlash()) {
         memcpy(name, cfg, MEM_LEN_NAME);
         storeName();
     }
