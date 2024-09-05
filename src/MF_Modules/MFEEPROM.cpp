@@ -12,7 +12,7 @@ MFEEPROM::MFEEPROM() {}
 
 void MFEEPROM::init(void)
 {
-#if defined(ARDUINO_ARCH_RP2040)
+#if !defined(ARDUINO_ARCH_AVR)
     EEPROM.begin(4096);
 #endif
     _eepromLength = EEPROM.length();
@@ -33,9 +33,6 @@ bool MFEEPROM::write_byte(uint16_t adr, const uint8_t data)
 {
     if (adr >= _eepromLength) return false;
     EEPROM.write(adr, data);
-#if defined(ARDUINO_ARCH_RP2040)
-    EEPROM.commit();
-#endif
     return true;
 }
 
