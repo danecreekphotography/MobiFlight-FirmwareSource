@@ -123,7 +123,7 @@ namespace CustomDevice
         }
     }
 
-#if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
+#if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
     void stopUpdate2ndCore(bool stop)
     {
         // wait for 2nd core
