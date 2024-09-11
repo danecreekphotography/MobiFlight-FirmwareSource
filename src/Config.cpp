@@ -80,7 +80,6 @@ boolean        configActivated                 = false;
 uint16_t       pNameBuffer                     = 0; // pointer for nameBuffer during reading of config
 const uint16_t configLengthFlash               = sizeof(CustomDeviceConfig);
 // if config is in EEPROM, ensure upload a new config even if a config in flash is available
-bool configEEPROMavailable = false;
 
 void resetConfig();
 void readConfig();
@@ -115,7 +114,6 @@ bool readconfigLengthEEPROM()
             return false;
         }
     }
-    configEEPROMavailable = true;
     return true;
 }
 
@@ -142,7 +140,7 @@ void OnSetConfig()
     char   *cfg    = cmdMessenger.readStringArg();
     uint8_t cfgLen = strlen(cfg);
 
-    if (configEEPROMavailable || !configStoredInFlash()) {
+    if (configStoredInEEPROM() || !configStoredInFlash()) {
         bool maxConfigLengthNotExceeded = configLengthEEPROM + cfgLen + 1 < MEM_LEN_CONFIG;
         if (maxConfigLengthNotExceeded) {
             // save the received config string including the terminatung NULL (+1) to EEPROM
