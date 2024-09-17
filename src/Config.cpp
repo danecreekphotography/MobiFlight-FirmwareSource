@@ -140,17 +140,18 @@ void OnSetConfig()
     char   *cfg    = cmdMessenger.readStringArg();
     uint8_t cfgLen = strlen(cfg);
 
-    if (configStoredInEEPROM() || !configStoredInFlash()) {
+    if (!configStoredInFlash()) {
         bool maxConfigLengthNotExceeded = configLengthEEPROM + cfgLen + 1 < MEM_LEN_CONFIG;
         if (maxConfigLengthNotExceeded) {
             // save the received config string including the terminatung NULL (+1) to EEPROM
             MFeeprom.write_block(MEM_OFFSET_CONFIG + configLengthEEPROM, cfg, cfgLen + 1);
             configLengthEEPROM += cfgLen;
             cmdMessenger.sendCmd(kStatus, configLengthEEPROM);
-        } else
+        } else {
             // staus message to connector, failure on setting config
             // connector does not check for status = -1
             cmdMessenger.sendCmd(kStatus, -1);
+        }
 #ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Setting config end"));
 #endif
@@ -728,7 +729,7 @@ void OnGenNewSerial()
 // ************************************************************
 void storeName()
 {
-    if (configStoredInEEPROM() || !configStoredInFlash()) {
+    if (!configStoredInFlash()) {
         MFeeprom.write_byte(MEM_OFFSET_NAME, '#');
         MFeeprom.write_block(MEM_OFFSET_NAME + 1, name, MEM_LEN_NAME - 1);
         // MFeeprom.commit() is not required, name is always set before config
@@ -746,7 +747,7 @@ void restoreName()
 void OnSetName()
 {
     char *cfg = cmdMessenger.readStringArg();
-    if (configStoredInEEPROM() || !configStoredInFlash()) {
+    if (!configStoredInFlash()) {
         memcpy(name, cfg, MEM_LEN_NAME);
         storeName();
     }
