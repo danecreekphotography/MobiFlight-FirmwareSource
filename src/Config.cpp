@@ -79,7 +79,6 @@ uint16_t       configLengthEEPROM              = 0;
 boolean        configActivated                 = false;
 uint16_t       pNameBuffer                     = 0; // pointer for nameBuffer during reading of config
 const uint16_t configLengthFlash               = sizeof(CustomDeviceConfig);
-// if config is in EEPROM, ensure upload a new config even if a config in flash is available
 
 void resetConfig();
 void readConfig();
