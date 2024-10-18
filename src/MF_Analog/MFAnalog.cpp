@@ -19,6 +19,9 @@ void MFAnalog::attach(uint8_t pin, const char *name, uint8_t sensitivity)
     _pin         = pin;
     _name        = name;
 #if defined(ARDUINO_AVR_PROMICRO16)
+    // ProMicro has a special pin assignment for analog pins
+    // therefore reading from A6 and A7 does not work
+    // via "digital" pins. See also pins_arduino.h
     if (_pin == 4)
         _pin = A6;
     else if (_pin == 6)
