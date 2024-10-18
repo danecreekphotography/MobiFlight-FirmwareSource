@@ -84,6 +84,7 @@ void resetConfig();
 void readConfig();
 void _activateConfig();
 void readConfigFromMemory(bool configFromFlash);
+
 bool configStoredInFlash()
 {
     return configLengthFlash > 0;
@@ -138,16 +139,25 @@ void OnSetConfig()
     char   *cfg    = cmdMessenger.readStringArg();
     uint8_t cfgLen = strlen(cfg);
 
-    bool maxConfigLengthNotExceeded = configLengthEEPROM + cfgLen + 1 < MEM_LEN_CONFIG;
-    if (maxConfigLengthNotExceeded) {
-        MFeeprom.write_block(MEM_OFFSET_CONFIG + configLengthEEPROM, cfg, cfgLen + 1); // save the received config string including the terminatung NULL (+1) to EEPROM
-        configLengthEEPROM += cfgLen;
-        cmdMessenger.sendCmd(kStatus, configLengthEEPROM);
-    } else
-        cmdMessenger.sendCmd(kStatus, -1); // last successfull saving block is already NULL terminated, nothing more todo
+    if (!configStoredInFlash()) {
+        bool maxConfigLengthNotExceeded = configLengthEEPROM + cfgLen + 1 < MEM_LEN_CONFIG;
+        if (maxConfigLengthNotExceeded) {
+            // save the received config string including the terminatung NULL (+1) to EEPROM
+            MFeeprom.write_block(MEM_OFFSET_CONFIG + configLengthEEPROM, cfg, cfgLen + 1);
+            configLengthEEPROM += cfgLen;
+            cmdMessenger.sendCmd(kStatus, configLengthEEPROM);
+        } else {
+            // staus message to connector, failure on setting config
+            // connector does not check for status = -1
+            cmdMessenger.sendCmd(kStatus, -1);
+        }
 #ifdef DEBUG2CMDMESSENGER
-    cmdMessenger.sendCmd(kDebug, F("Setting config end"));
+        cmdMessenger.sendCmd(kDebug, F("Setting config end"));
 #endif
+    } else {
+        // connector does not check for status = -1
+        cmdMessenger.sendCmd(kStatus, -1);
+    }
 }
 
 void resetConfig()
@@ -721,6 +731,7 @@ void storeName()
     if (!configStoredInFlash()) {
         MFeeprom.write_byte(MEM_OFFSET_NAME, '#');
         MFeeprom.write_block(MEM_OFFSET_NAME + 1, name, MEM_LEN_NAME - 1);
+        // MFeeprom.commit() is not required, name is always set before config
     }
 }
 
