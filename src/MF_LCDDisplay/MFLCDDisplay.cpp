@@ -42,10 +42,14 @@ void MFLCDDisplay::detach()
 
 void MFLCDDisplay::powerSavingMode(bool state)
 {
-    if (state)
+    if (state) {
         _lcdDisplay.noBacklight();
-    else
+        _lcdDisplay.noDisplay();
+    }
+    else {
         _lcdDisplay.backlight();
+        _lcdDisplay.display();
+    }
 }
 
 void MFLCDDisplay::test()
