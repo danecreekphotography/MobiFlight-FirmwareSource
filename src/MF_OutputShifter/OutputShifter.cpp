@@ -60,6 +60,13 @@ namespace OutputShifter
         int   value  = cmdMessenger.readInt16Arg();
         outputShifter[module].setPins(pins, value);
     }
+
+    void PowerSave(bool state)
+    {
+        for (uint8_t i = 0; i < outputShifterRegistered; ++i) {
+            outputShifter[i].powerSavingMode(state);
+        }
+    }
 } // namespace
 
 // OutputShifter.cpp
