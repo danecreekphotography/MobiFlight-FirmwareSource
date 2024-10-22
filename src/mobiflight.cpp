@@ -123,6 +123,9 @@ void SetPowerSavingMode(bool state)
 #if MF_CUSTOMDEVICE_SUPPORT == 1
     CustomDevice::PowerSave(state);
 #endif
+#if MF_OUTPUT_SHIFTER_SUPPORT == 1
+    OutputShifter::PowerSave(state);
+#endif
 
 #ifdef DEBUG2CMDMESSENGER
     if (state)
