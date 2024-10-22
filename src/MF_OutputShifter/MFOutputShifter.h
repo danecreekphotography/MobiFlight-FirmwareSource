@@ -26,6 +26,7 @@ public:
     void detach();
     void clear();
     void update();
+    void powerSavingMode(bool state);
 
 private:
     uint8_t _latchPin;    // Latch pin
