@@ -53,6 +53,13 @@ namespace LCDDisplay
         cmdMessenger.unescape(output);
         lcd_I2C[address].display(output);
     }
+
+    void PowerSave(bool state)
+    {
+        for (uint8_t i = 0; i < lcd_12cRegistered; ++i) {
+            lcd_I2C[i].powerSavingMode(state);
+        }
+    }
 } // namespace
 
 // LCDDisplay.cpp
