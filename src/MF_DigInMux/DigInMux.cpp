@@ -4,7 +4,10 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include <Arduino.h>
+#include "MFBoards.h"
+#include "commandmessenger.h"
+#include "allocateMem.h"
 #include "MFDigInMux.h"
 #include "MFMuxDriver.h"
 

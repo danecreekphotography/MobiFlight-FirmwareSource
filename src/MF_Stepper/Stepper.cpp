@@ -4,7 +4,10 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include <Arduino.h>
+#include "MFBoards.h"
+#include "commandmessenger.h"
+#include "allocateMem.h"
 #include "MFStepper.h"
 #include "Stepper.h"
 #if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)

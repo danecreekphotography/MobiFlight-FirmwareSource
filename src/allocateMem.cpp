@@ -4,7 +4,9 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include "allocateMem.h"
+#include "MFBoards.h"
+#include "commandmessenger.h"
 
 #if defined (ARDUINO_ARCH_AVR)
 uint8_t     deviceBuffer[MF_MAX_DEVICEMEM] = {0};

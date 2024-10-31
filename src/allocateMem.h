@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <Arduino.h>
 #include <new>
 
 #if defined (ARDUINO_ARCH_AVR)

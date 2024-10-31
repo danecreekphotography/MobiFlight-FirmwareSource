@@ -4,7 +4,8 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include "allocateMem.h"
+#include "commandmessenger.h"
 #include "MFStepper.h"
 
 enum { // enumeration for stepper mode

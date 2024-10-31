@@ -1,4 +1,15 @@
-#include "mobiflight.h"
+//
+// CustomDevice.cpp
+//
+// (C) MobiFlight Project 2022
+//
+
+#include <Arduino.h>
+#include "MFBoards.h"
+#include "commandmessenger.h"
+#include "allocateMem.h"
+#include "commandmessenger.h"
+#include "allocateMem.h"
 #include "CustomDevice.h"
 #include "MFCustomDevice.h"
 #if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)

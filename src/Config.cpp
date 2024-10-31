@@ -4,7 +4,11 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include <Arduino.h>
+#include "config.h"
+#include "commandmessenger.h"
+#include "allocateMem.h"
+#include "MFBoards.h"
 #include "MFEEPROM.h"
 #include "Button.h"
 #include "Encoder.h"

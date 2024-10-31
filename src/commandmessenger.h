@@ -51,6 +51,5 @@ enum {
 
 void     attachCommandCallbacks();
 uint32_t getLastCommandMillis();
-void     setLastCommandMillis();
 
 extern CmdMessenger cmdMessenger;

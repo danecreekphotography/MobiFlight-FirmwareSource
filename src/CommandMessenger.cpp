@@ -4,8 +4,8 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
-
+#include "commandmessenger.h"
+#include "config.h"
 #include "Button.h"
 #include "Encoder.h"
 #if MF_ANALOG_SUPPORT == 1
