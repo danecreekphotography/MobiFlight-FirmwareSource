@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <Arduino.h>
+
 enum {
     kTypeNotSet,               // 0
     kTypeButton,               // 1

@@ -4,8 +4,6 @@
 // (C) MobiFlight Project 2022
 //
 
-#include <Arduino.h>
-#include "MFBoards.h"
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFInputShifter.h"
@@ -46,7 +44,7 @@ namespace InputShifter
         }
         MFInputShifter::attachHandler(handlerInputShifterOnChange);
         inputShifterRegistered++;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Added input shifter"));
 #endif
     }
@@ -57,7 +55,7 @@ namespace InputShifter
             inputShifter[i].detach();
         }
         inputShifterRegistered = 0;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Cleared input shifter"));
 #endif
     }

@@ -4,8 +4,6 @@
 // (C) MobiFlight Project 2022
 //
 
-#include <Arduino.h>
-#include "MFBoards.h"
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFEncoder.h"
@@ -17,7 +15,7 @@ namespace Encoder
     uint8_t    encodersRegistered = 0;
     uint8_t    maxEncoders        = 0;
 
-    void       handlerOnEncoder(uint8_t eventId, const char *name)
+    void handlerOnEncoder(uint8_t eventId, const char *name)
     {
         cmdMessenger.sendCmdStart(kEncoderChange);
         cmdMessenger.sendCmdArg(name);
@@ -42,7 +40,7 @@ namespace Encoder
         encoders[encodersRegistered].attach(pin1, pin2, encoder_type, name);
         MFEncoder::attachHandler(handlerOnEncoder);
         encodersRegistered++;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Added encoder"));
 #endif
     }
@@ -50,7 +48,7 @@ namespace Encoder
     void Clear()
     {
         encodersRegistered = 0;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Cleared encoders"));
 #endif
     }

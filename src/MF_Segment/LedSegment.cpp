@@ -4,8 +4,6 @@
 // (C) MobiFlight Project 2022
 //
 
-#include <Arduino.h>
-#include "MFBoards.h"
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFSegments.h"
@@ -33,14 +31,13 @@ namespace LedSegment
 
         ledSegments[ledSegmentsRegistered] = MFSegments();
 
-        if (!ledSegments[ledSegmentsRegistered].attach(type, dataPin, csPin, clkPin, numDevices, brightness))
-        {
+        if (!ledSegments[ledSegmentsRegistered].attach(type, dataPin, csPin, clkPin, numDevices, brightness)) {
             cmdMessenger.sendCmd(kStatus, F("Led Segment array does not fit into Memory"));
             return;
         }
 
         ledSegmentsRegistered++;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Added Led Segment"));
 #endif
     }
@@ -51,7 +48,7 @@ namespace LedSegment
             ledSegments[i].detach();
         }
         ledSegmentsRegistered = 0;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Cleared segments"));
 #endif
     }
@@ -91,10 +88,10 @@ namespace LedSegment
 
     void OnSetModuleSingleSegment()
     {
-        uint8_t module     = (uint8_t)cmdMessenger.readInt16Arg();
-        uint8_t subModule  = (uint8_t)cmdMessenger.readInt16Arg();
-        char *segment      = cmdMessenger.readStringArg();              // 0 to 63, multiple segments deliminited by '|'
-        uint8_t on_off     = (uint8_t)cmdMessenger.readInt16Arg();      // 0 or 1
+        uint8_t module    = (uint8_t)cmdMessenger.readInt16Arg();
+        uint8_t subModule = (uint8_t)cmdMessenger.readInt16Arg();
+        char   *segment   = cmdMessenger.readStringArg();         // 0 to 63, multiple segments deliminited by '|'
+        uint8_t on_off    = (uint8_t)cmdMessenger.readInt16Arg(); // 0 or 1
 
         char *pinTokens = strtok(segment, "|");
         while (pinTokens != 0) {
@@ -103,7 +100,7 @@ namespace LedSegment
             pinTokens = strtok(0, "|");
         }
     }
-    
+
 } // namespace
 
 // LedSegment.cpp

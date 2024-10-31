@@ -4,8 +4,6 @@
 // (C) MobiFlight Project 2022
 //
 
-#include <Arduino.h>
-#include "MFBoards.h"
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFOutput.h"
@@ -33,7 +31,7 @@ namespace Output
         outputs[outputsRegistered] = MFOutput();
         outputs[outputsRegistered].attach(pin);
         outputsRegistered++;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Added output"));
 #endif
     }
@@ -41,7 +39,7 @@ namespace Output
     void Clear()
     {
         outputsRegistered = 0;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Cleared outputs"));
 #endif
     }
@@ -51,7 +49,7 @@ namespace Output
         // Read led state argument, interpret string as boolean
         int pin   = cmdMessenger.readInt16Arg();
         int state = cmdMessenger.readInt16Arg();
-    
+
         // Set led
         if (state == 0xFF)
             digitalWrite(pin, MF_HIGH);

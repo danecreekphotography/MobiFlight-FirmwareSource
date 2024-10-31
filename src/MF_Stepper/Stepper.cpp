@@ -4,8 +4,7 @@
 // (C) MobiFlight Project 2022
 //
 
-#include <Arduino.h>
-#include "MFBoards.h"
+
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFStepper.h"
@@ -52,7 +51,7 @@ namespace Stepper
         // all set
         steppersRegistered++;
 
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Added stepper"));
 #endif
     }
@@ -63,7 +62,7 @@ namespace Stepper
             steppers[i].detach();
         }
         steppersRegistered = 0;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Cleared steppers"));
 #endif
     }

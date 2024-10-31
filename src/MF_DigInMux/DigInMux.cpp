@@ -4,8 +4,6 @@
 // (C) MobiFlight Project 2022
 //
 
-#include <Arduino.h>
-#include "MFBoards.h"
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFDigInMux.h"
@@ -46,7 +44,7 @@ namespace DigInMux
         MFDigInMux::attachHandler(handlerOnDigInMux);
         digInMuxRegistered++;
 
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Added digital input MUX"));
 #endif
     }
@@ -57,7 +55,7 @@ namespace DigInMux
             digInMux[i].detach();
         }
         digInMuxRegistered = 0;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Cleared dig. input Muxes"));
 #endif
     }

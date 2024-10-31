@@ -31,9 +31,8 @@ void MFSegments::setSingleSegment(uint8_t module, uint8_t segment, uint8_t on_of
 {
     if (_moduleCount == 0)
         return;
-    
-    _ledControl.setSingleSegment(module, segment, on_off);
 
+    _ledControl.setSingleSegment(module, segment, on_off);
 }
 
 void MFSegments::setBrightness(uint8_t module, uint8_t value)

@@ -22,8 +22,7 @@
 // non-relevant arguments (particularly: <addr> for TM's) are ignored.
 // A few methods (mostly for internal use) have been added.
 
-#ifndef __LEDCONTROL_DUAL__H__
-#define __LEDCONTROL_DUAL__H__
+#pragma once
 
 // This constant reduces buffer usage: a single (static) 16-byte buffer
 // is used for all objects. However, for TM1637s, data is written
@@ -34,12 +33,10 @@
 // (as opposite to writing individual chars).
 #define LEDCONTROL_EXTENDED
 
-#include <stdint.h>
-// #include <inttypes.h>
 #include <Arduino.h>
 #include <LedSegment.h>
 
-#ifdef __AVR__
+#if defined(__AVR__)
 #include <avr/pgmspace.h>
 #elif defined(ESP8266) || defined(ESP32)
 #include <pgmspace.h>
@@ -66,7 +63,7 @@ private:
     uint8_t _dataPin = TYPE_UNDEFINED;
     uint8_t _clkPin  = TYPE_UNDEFINED;
     uint8_t _csPin   = TYPE_UNDEFINED;
-#ifdef LEDCONTROL_NO_BUF
+#if defined(LEDCONTROL_NO_BUF)
     // For TM, buffer can't be static (= shared): either we are building
     // the extended version (which adds a per-unit buffer instead of the static one)
     // or we are forced to resort to digit-by-digit output
@@ -80,9 +77,9 @@ private:
     void    setPattern(uint8_t addr, uint8_t digit, uint8_t value, bool sendNow = true);
 
     // MAX-specific
-    uint8_t *digitBuffer;   // each digit must be stored in a buffer to be able to set single segments
-    void setScanLimit(uint8_t addr, uint8_t limit);
-    void spiTransfer(uint8_t addr, uint8_t opcode, uint8_t data);
+    uint8_t *digitBuffer; // each digit must be stored in a buffer to be able to set single segments
+    void     setScanLimit(uint8_t addr, uint8_t limit);
+    void     spiTransfer(uint8_t addr, uint8_t opcode, uint8_t data);
 
     // TM-specific
     // uint8_t dpSet = 0;
@@ -91,7 +88,7 @@ private:
     void stop(void);
     bool writeByte(uint8_t data, bool rvs = false);
 
-#ifdef LEDCONTROL_NO_BUF
+#if defined(LEDCONTROL_NO_BUF)
     void writeOneDigit(uint8_t ndigit, uint8_t val);
 #else
     // Has buffer available
@@ -100,7 +97,7 @@ private:
 #endif
 
 public:
-    LedControl(){};
+    LedControl() {};
 
     bool begin(uint8_t type, uint8_t dataPin, uint8_t clkPin, uint8_t csPin, uint8_t numDevices = 1);
 
@@ -153,7 +150,7 @@ public:
     void sendAll(void) { writeBuffer(); };
 #endif
 
-#ifdef LEDCONTROL_EXTENDED
+#if defined(LEDCONTROL_EXTENDED)
     // Display a decimal number, with dot control
     //
     // Display the given argument as a decimal number. The dots between the digits
@@ -185,5 +182,3 @@ public:
 
 #endif
 };
-
-#endif //!__LEDCONTROL_DUAL__H__

@@ -4,8 +4,6 @@
 // (C) MobiFlight Project 2022
 //
 
-#include <Arduino.h>
-#include "MFBoards.h"
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFServo.h"
@@ -33,7 +31,7 @@ namespace Servos
         servos[servosRegistered] = MFServo();
         servos[servosRegistered].attach(pin, true);
         servosRegistered++;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Added servos"));
 #endif
     }
@@ -44,7 +42,7 @@ namespace Servos
             servos[i].detach();
         }
         servosRegistered = 0;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Cleared servos"));
 #endif
     }

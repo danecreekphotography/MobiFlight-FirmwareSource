@@ -4,14 +4,12 @@
 // (C) MobiFlight Project 2022
 //
 
-#include <Arduino.h>
-#include "MFBoards.h"
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFAnalog.h"
 #include "Analog.h"
 
-#if MF_ANALOG_SUPPORT == 1
+#if defined(MF_ANALOG_SUPPORT)
 namespace Analog
 {
     MFAnalog *analog;
@@ -44,7 +42,7 @@ namespace Analog
         analog[analogRegistered].attach(pin, name, sensitivity);
         MFAnalog::attachHandler(handlerOnAnalogChange);
         analogRegistered++;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Added analog device "));
 #endif
     }
@@ -52,7 +50,7 @@ namespace Analog
     void Clear(void)
     {
         analogRegistered = 0;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Cleared analog devices"));
 #endif
     }

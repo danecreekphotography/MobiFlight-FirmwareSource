@@ -4,41 +4,40 @@
 // (C) MobiFlight Project 2022
 //
 
-
 #include <Arduino.h>
-#include "MFBoards.h"
 #include "config.h"
 #include "allocateMem.h"
 #include "commandmessenger.h"
 #include "Button.h"
 #include "Encoder.h"
 #include "MFEEPROM.h"
-#if MF_ANALOG_SUPPORT == 1
+#if defined(MF_ANALOG_SUPPORT)
 #include "Analog.h"
 #endif
-#if MF_INPUT_SHIFTER_SUPPORT == 1
+#if defined(MF_INPUT_SHIFTER_SUPPORT)
 #include "InputShifter.h"
 #endif
 #include "Output.h"
-#if MF_SEGMENT_SUPPORT == 1
+#if defined(MF_SEGMENT_SUPPORT)
 #include "LedSegment.h"
 #endif
-#if MF_STEPPER_SUPPORT == 1
+#if defined(MF_STEPPER_SUPPORT)
 #include "Stepper.h"
 #endif
-#if MF_SERVO_SUPPORT == 1
+#if defined(MF_SERVO_SUPPORT)
 #include "Servos.h"
 #endif
-#if MF_LCD_SUPPORT == 1
+#if defined(MF_LCD_SUPPORT)
 #include "LCDDisplay.h"
 #endif
-#if MF_OUTPUT_SHIFTER_SUPPORT == 1
+#if defined(MF_OUTPUT_SHIFTER_SUPPORT)
 #include "OutputShifter.h"
 #endif
-#if MF_DIGIN_MUX_SUPPORT == 1
+#if defined(MF_DIGIN_MUX_SUPPORT)
 #include "DigInMux.h"
+#include "MFDigInMux.h"
 #endif
-#if MF_CUSTOMDEVICE_SUPPORT == 1
+#if defined(MF_CUSTOMDEVICE_SUPPORT)
 #include "CustomDevice.h"
 #endif
 
@@ -63,20 +62,20 @@ MFMuxDriver MUX;
 typedef struct {
     uint32_t Buttons  = 0;
     uint32_t Encoders = 0;
-#if MF_SERVO_SUPPORT == 1
+#if defined(MF_SERVO_SUPPORT)
     uint32_t Servos = 0;
 #endif
-#if MF_ANALOG_SUPPORT == 1
+#if defined(MF_ANALOG_SUPPORT)
     uint32_t AnalogAverage = 0;
     uint32_t Analog        = 0;
 #endif
-#if MF_INPUT_SHIFTER_SUPPORT == 1
+#if defined(MF_INPUT_SHIFTER_SUPPORT)
     uint32_t InputShifters = 0;
 #endif
-#if MF_DIGIN_MUX_SUPPORT == 1
+#if defined(MF_DIGIN_MUX_SUPPORT)
     uint32_t DigInMux = 0;
 #endif
-#if MF_CUSTOMDEVICE_SUPPORT == 1
+#if defined(MF_CUSTOMDEVICE_SUPPORT)
     uint32_t CustomDevice = 0;
 #endif
 } lastUpdate_t;
@@ -90,17 +89,17 @@ void initPollIntervals(void)
     // Init Time Gap between Inputs, do not read at the same loop
     lastUpdate.Buttons  = millis();
     lastUpdate.Encoders = millis();
-#if MF_SERVO_SUPPORT == 1
+#if defined(MF_SERVO_SUPPORT)
     lastUpdate.Servos = millis() + 2;
 #endif
-#if MF_ANALOG_SUPPORT == 1
+#if defined(MF_ANALOG_SUPPORT)
     lastUpdate.AnalogAverage = millis() + 4;
     lastUpdate.Analog        = millis() + 4;
 #endif
-#if MF_INPUT_SHIFTER_SUPPORT == 1
+#if defined(MF_INPUT_SHIFTER_SUPPORT)
     lastUpdate.InputShifters = millis() + 6;
 #endif
-#if MF_DIGIN_MUX_SUPPORT == 1
+#if defined(MF_DIGIN_MUX_SUPPORT)
     lastUpdate.DigInMux = millis() + 8;
 #endif
 }
@@ -121,23 +120,23 @@ void SetPowerSavingMode(bool state)
     // disable the lights ;)
     powerSavingMode = state;
     Output::PowerSave(state);
-#if MF_SEGMENT_SUPPORT == 1
+#if defined(MF_SEGMENT_SUPPORT)
     LedSegment::PowerSave(state);
 #endif
-#if MF_STEPPER_SUPPORT == 1
+#if defined(MF_STEPPER_SUPPORT)
     Stepper::PowerSave(state);
 #endif
-#if MF_CUSTOMDEVICE_SUPPORT == 1
+#if defined(MF_CUSTOMDEVICE_SUPPORT)
     CustomDevice::PowerSave(state);
 #endif
-#if MF_OUTPUT_SHIFTER_SUPPORT == 1
+#if defined(MF_OUTPUT_SHIFTER_SUPPORT)
     OutputShifter::PowerSave(state);
 #endif
-#if MF_LCD_SUPPORT == 1
+#if defined(MF_LCD_SUPPORT)
     LCDDisplay::PowerSave(state);
 #endif
 
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
     if (state)
         cmdMessenger.sendCmd(kDebug, F("Power saving mode on"));
     else
@@ -196,29 +195,29 @@ void loop()
 
         timedUpdate(Encoder::read, &lastUpdate.Encoders, MF_ENCODER_DEBOUNCE_MS);
 
-#if MF_STEPPER_SUPPORT == 1
+#if defined(MF_STEPPER_SUPPORT)
         Stepper::update();
 #endif
 
-#if MF_SERVO_SUPPORT == 1
+#if defined(MF_SERVO_SUPPORT)
         timedUpdate(Servos::update, &lastUpdate.Servos, MF_SERVO_DELAY_MS);
 #endif
 
-#if MF_ANALOG_SUPPORT == 1
+#if defined(MF_ANALOG_SUPPORT)
         timedUpdate(Analog::read, &lastUpdate.Analog, MF_ANALOGREAD_DELAY_MS);
         timedUpdate(Analog::readAverage, &lastUpdate.AnalogAverage, MF_ANALOGAVERAGE_DELAY_MS);
 #endif
 
-#if MF_INPUT_SHIFTER_SUPPORT == 1
+#if defined(MF_INPUT_SHIFTER_SUPPORT)
         timedUpdate(InputShifter::read, &lastUpdate.InputShifters, MF_INSHIFTER_POLL_MS);
 #endif
 
-#if MF_DIGIN_MUX_SUPPORT == 1
+#if defined(MF_DIGIN_MUX_SUPPORT)
         timedUpdate(DigInMux::read, &lastUpdate.DigInMux, MF_INMUX_POLL_MS);
 #endif
 
-#if MF_CUSTOMDEVICE_SUPPORT == 1 && defined(MF_CUSTOMDEVICE_HAS_UPDATE)
-#ifdef MF_CUSTOMDEVICE_POLL_MS
+#if defined(MF_CUSTOMDEVICE_SUPPORT) && defined(MF_CUSTOMDEVICE_HAS_UPDATE)
+#if defined(MF_CUSTOMDEVICE_POLL_MS)
         timedUpdate(CustomDevice::update, &lastUpdate.CustomDevice, MF_CUSTOMDEVICE_POLL_MS);
 #else
         CustomDevice::update();

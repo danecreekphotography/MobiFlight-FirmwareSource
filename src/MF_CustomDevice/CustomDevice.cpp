@@ -4,12 +4,9 @@
 // (C) MobiFlight Project 2022
 //
 
-#include <Arduino.h>
-#include "MFBoards.h"
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "commandmessenger.h"
-#include "allocateMem.h"
 #include "CustomDevice.h"
 #include "MFCustomDevice.h"
 #if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
@@ -48,7 +45,7 @@ namespace CustomDevice
         customDevice[customDeviceRegistered] = MFCustomDevice();
         customDevice[customDeviceRegistered].attach(adrPin, adrType, adrConfig, configFromFlash);
         customDeviceRegistered++;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kStatus, F("Added CustomDevice"));
 #endif
     }
@@ -64,7 +61,7 @@ namespace CustomDevice
             customDevice[i].detach();
         }
         customDeviceRegistered = 0;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kStatus, F("Cleared CustomDevice"));
 #endif
     }
@@ -172,12 +169,12 @@ void loop1()
     int16_t messageID;
     char   *payload;
     bool    stopUpdating = false;
-#ifdef MF_CUSTOMDEVICE_POLL_MS
+#if defined(DEBUG2CMDMESSENGER)
     uint32_t lastMillis = 0;
 #endif
 
     while (1) {
-#ifdef MF_CUSTOMDEVICE_POLL_MS
+#if defined(DEBUG2CMDMESSENGER)
         if (millis() - lastMillis >= MF_CUSTOMDEVICE_POLL_MS) {
 #endif
 #if defined(MF_CUSTOMDEVICE_HAS_UPDATE)
@@ -185,7 +182,7 @@ void loop1()
                 CustomDevice::customDevice[i].update();
             }
 #endif
-#ifdef MF_CUSTOMDEVICE_POLL_MS
+#if defined(DEBUG2CMDMESSENGER)
             lastMillis = millis();
         }
 #endif

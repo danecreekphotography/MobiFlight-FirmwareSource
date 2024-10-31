@@ -73,7 +73,7 @@ enum {
     OP_DISPLAYTEST = 15
 };
 
-#ifdef LEDCONTROL_NO_BUF
+#if defined(LEDCONTROL_NO_BUF)
 uint8_t *LedControl::rawdata;
 #endif
 
@@ -151,7 +151,7 @@ bool LedControl::begin(uint8_t type, uint8_t dataPin, uint8_t clkPin, uint8_t cs
         if (!FitInMemory(sizeof(uint8_t) * numDevices * 8))
             return false;
         digitBuffer = new (allocateMemory(sizeof(uint8_t) * numDevices * 8)) uint8_t;
-        maxUnits = numDevices;
+        maxUnits    = numDevices;
         pinMode(_dataPin, OUTPUT);
         pinMode(_clkPin, OUTPUT);
         pinMode(_csPin, OUTPUT);
@@ -221,7 +221,7 @@ void LedControl::clearDisplay(uint8_t addr)
             spiTransfer(addr, i + 1, 0);
         }
     } else {
-#ifdef LEDCONTROL_NO_BUF
+#if defined(LEDCONTROL_NO_BUF)
         for (uint8_t i = 0; i < 8; i++) {
             writeOneDigit(i, 0);
         }
@@ -252,15 +252,15 @@ void LedControl::setChar(uint8_t addr, uint8_t digit, char value, bool dp, bool 
 
 void LedControl::setSingleSegment(uint8_t subModule, uint8_t segment, uint8_t value, bool sendNow)
 {
-    uint8_t digit = segment >> 3;
+    uint8_t digit       = segment >> 3;
     uint8_t bitPosition = segment % 8;
-    uint8_t offset = subModule * 8;
+    uint8_t offset      = subModule * 8;
 
     if (isMAX()) {
         if (subModule >= maxUnits) return;
         if (segment > 63) return;
         if (value) {
-            digitBuffer[offset + digit] |= (1 << bitPosition);   
+            digitBuffer[offset + digit] |= (1 << bitPosition);
         } else {
             digitBuffer[offset + digit] &= ~(1 << bitPosition);
         }
@@ -275,7 +275,7 @@ void LedControl::setSingleSegment(uint8_t subModule, uint8_t segment, uint8_t va
         if (bitPosition == 8)
             bitPosition = 0;
         if (value) {
-            rawdata[(maxUnits - 1) - digit] |= (1 << bitPosition);   
+            rawdata[(maxUnits - 1) - digit] |= (1 << bitPosition);
         } else {
             rawdata[(maxUnits - 1) - digit] &= ~(1 << bitPosition);
         }
@@ -300,7 +300,7 @@ void LedControl::setPattern(uint8_t addr, uint8_t digit, uint8_t value, bool sen
         // and then just transmit them reversed (from LSb to MSb)
         v <<= 1;
         if (value & 0x80) v |= 0x01;
-#ifdef LEDCONTROL_NO_BUF
+#if defined(LEDCONTROL_NO_BUF)
         writeOneDigit(digit, v);
 #else
         rawdata[(maxUnits - 1) - digit] = v; // Change only the individual affected digit in static buffer
@@ -398,7 +398,7 @@ bool LedControl::writeByte(uint8_t data, bool rvs)
     return ack;
 }
 
-#ifdef LEDCONTROL_NO_BUF
+#if defined(LEDCONTROL_NO_BUF)
 
 void LedControl::writeOneDigit(uint8_t ndigit, uint8_t pattern)
 {
@@ -452,7 +452,7 @@ void LedControl::writeDigits(uint8_t startd, uint8_t len)
 
 #endif
 
-#ifdef LEDCONTROL_EXTENDED
+#if defined(LEDCONTROL_EXTENDED)
 
 void LedControl::showNumber(uint8_t addr, int32_t num, bool isHex, uint8_t dots, bool leading_zero, uint8_t roffset)
 {

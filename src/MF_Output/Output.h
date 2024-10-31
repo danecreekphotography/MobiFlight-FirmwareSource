@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <Arduino.h>
+
 namespace Output
 {
     bool setupArray(uint16_t count);

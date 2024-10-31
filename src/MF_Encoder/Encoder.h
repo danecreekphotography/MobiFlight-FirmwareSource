@@ -4,8 +4,9 @@
 // (C) MobiFlight Project 2022
 //
 
+#include <Arduino.h>
+
 #pragma once
-#include <stdint.h>
 
 namespace Encoder
 {

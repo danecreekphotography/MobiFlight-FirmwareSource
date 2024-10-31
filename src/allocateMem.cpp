@@ -5,21 +5,20 @@
 //
 
 #include "allocateMem.h"
-#include "MFBoards.h"
 #include "commandmessenger.h"
 
-#if defined (ARDUINO_ARCH_AVR)
-uint8_t     deviceBuffer[MF_MAX_DEVICEMEM] = {0};
+#if defined(ARDUINO_ARCH_AVR)
+uint8_t deviceBuffer[MF_MAX_DEVICEMEM] = {0};
 #else
-std::size_t    deviceBuffer[MF_MAX_DEVICEMEM] = {0};
+std::size_t deviceBuffer[MF_MAX_DEVICEMEM] = {0};
 #endif
 
-uint16_t nextPointer                    = 0;
+uint16_t nextPointer = 0;
 
-#if defined (ARDUINO_ARCH_AVR)
-uint8_t     *allocateMemory(uint16_t size)
+#if defined(ARDUINO_ARCH_AVR)
+uint8_t *allocateMemory(uint16_t size)
 #else
-std::size_t    *allocateMemory(uint16_t size)
+std::size_t *allocateMemory(uint16_t size)
 #endif
 {
     uint16_t actualPointer = nextPointer;
@@ -28,7 +27,7 @@ std::size_t    *allocateMemory(uint16_t size)
         cmdMessenger.sendCmd(kStatus, F("DeviceBuffer Overflow!"));
         return nullptr;
     }
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
     cmdMessenger.sendCmdStart(kDebug);
     cmdMessenger.sendCmdArg(F("Bytes added"));
     cmdMessenger.sendCmdArg(size);

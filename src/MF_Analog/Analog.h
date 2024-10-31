@@ -6,7 +6,8 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <Arduino.h>
+
 namespace Analog
 {
     bool setupArray(uint16_t count);

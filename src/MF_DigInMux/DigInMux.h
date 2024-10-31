@@ -4,9 +4,10 @@
 // (C) MobiFlight Project 2022
 //
 
+
 #pragma once
-#include <stdint.h>
-#include "MFDigInMux.h"
+
+#include <Arduino.h>
 
 namespace DigInMux
 {

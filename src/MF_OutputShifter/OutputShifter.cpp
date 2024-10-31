@@ -4,8 +4,6 @@
 // (C) MobiFlight Project 2022
 //
 
-#include <Arduino.h>
-#include "MFBoards.h"
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFOutputShifter.h"
@@ -21,7 +19,7 @@ namespace OutputShifter
     {
         if (!FitInMemory(sizeof(MFOutputShifter) * count))
             return false;
-        outputShifter   = new (allocateMemory(sizeof(MFOutputShifter) * count)) MFOutputShifter;
+        outputShifter    = new (allocateMemory(sizeof(MFOutputShifter) * count)) MFOutputShifter;
         maxOutputShifter = count;
         return true;
     }
@@ -31,14 +29,13 @@ namespace OutputShifter
         if (outputShifterRegistered == maxOutputShifter)
             return;
         outputShifter[outputShifterRegistered] = MFOutputShifter();
-        if (!outputShifter[outputShifterRegistered].attach(latchPin, clockPin, dataPin, modules))
-        {
+        if (!outputShifter[outputShifterRegistered].attach(latchPin, clockPin, dataPin, modules)) {
             cmdMessenger.sendCmd(kStatus, F("OutputShifter array does not fit into Memory"));
             return;
         }
         outputShifterRegistered++;
 
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Added Output Shifter"));
 #endif
     }
@@ -50,7 +47,7 @@ namespace OutputShifter
         }
 
         outputShifterRegistered = 0;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Cleared Output Shifter"));
 #endif
     }

@@ -4,8 +4,6 @@
 // (C) MobiFlight Project 2022
 //
 
-#include <Arduino.h>
-#include "MFBoards.h"
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFButton.h"
@@ -42,7 +40,7 @@ namespace Button
         buttons[buttonsRegistered].attach(pin, name);
         MFButton::attachHandler(handlerButtonOnChange);
         buttonsRegistered++;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Added button ") /* + name */);
 #endif
     }
@@ -53,7 +51,7 @@ namespace Button
             buttons[i].detach();
         }
         buttonsRegistered = 0;
-#ifdef DEBUG2CMDMESSENGER
+#if defined(DEBUG2CMDMESSENGER)
         cmdMessenger.sendCmd(kDebug, F("Cleared buttons"));
 #endif
     }

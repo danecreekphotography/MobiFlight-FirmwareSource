@@ -33,7 +33,7 @@ void MFAnalog::attach(uint8_t pin, const char *name, uint8_t sensitivity)
         readBuffer();
     }
     // and set initial value from buffers
-    _lastValue = ADC_Average_Total >> ADC_MAX_AVERAGE_LOG2;
+    _lastValue   = ADC_Average_Total >> ADC_MAX_AVERAGE_LOG2;
     _initialized = true;
 }
 
@@ -68,9 +68,9 @@ void MFAnalog::retrigger()
 }
 
 void MFAnalog::readBuffer()
-{                          
+{
     if (!_initialized)
-        return;                                 // read ADC and calculate floating average, call it every ~10ms
+        return;                                             // read ADC and calculate floating average, call it every ~10ms
     ADC_Average_Total -= ADC_Buffer[(ADC_Average_Pointer)]; // subtract oldest value to save the newest value
     ADC_Buffer[ADC_Average_Pointer] = analogRead(_pin);     // store read in, must be subtracted in next loop
     ADC_Average_Total += ADC_Buffer[ADC_Average_Pointer];   // add read in for floating average

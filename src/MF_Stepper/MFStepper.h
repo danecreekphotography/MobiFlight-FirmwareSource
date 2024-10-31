@@ -16,15 +16,15 @@ class MFStepper
 
 public:
     MFStepper();
-    void    attach(uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, uint8_t btnPin1, uint8_t mode, int8_t backlash, bool deactivateOutput);
-    void    detach();
-    void    update();
-    void    reset();
-    void    moveTo(long absolute);
-    void    setMaxSpeed(uint16_t speed);
-    void    setAcceleration(uint16_t acceleration);
-    void    setZero();
-    void    powerSavingMode(bool state);
+    void attach(uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pin4, uint8_t btnPin1, uint8_t mode, int8_t backlash, bool deactivateOutput);
+    void detach();
+    void update();
+    void reset();
+    void moveTo(long absolute);
+    void setMaxSpeed(uint16_t speed);
+    void setAcceleration(uint16_t acceleration);
+    void setZero();
+    void powerSavingMode(bool state);
 
 private:
     bool          _initialized;
