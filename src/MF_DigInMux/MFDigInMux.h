@@ -4,10 +4,10 @@
 // (C) MobiFlight Project 2022
 //
 
+#pragma once
+
 #include <Arduino.h>
 #include "MFMuxDriver.h"
-
-#pragma once
 
 extern "C" {
 typedef void (*MuxDigInEvent)(byte, uint8_t, const char *);
