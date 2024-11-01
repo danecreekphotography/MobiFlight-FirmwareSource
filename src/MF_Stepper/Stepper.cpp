@@ -4,7 +4,6 @@
 // (C) MobiFlight Project 2022
 //
 
-
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFStepper.h"
