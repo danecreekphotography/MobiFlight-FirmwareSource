@@ -169,12 +169,12 @@ void loop1()
     int16_t messageID;
     char   *payload;
     bool    stopUpdating = false;
-#if defined(DEBUG2CMDMESSENGER)
+#if defined(MF_CUSTOMDEVICE_POLL_MS)
     uint32_t lastMillis = 0;
 #endif
 
     while (1) {
-#if defined(DEBUG2CMDMESSENGER)
+#if defined(MF_CUSTOMDEVICE_POLL_MS)
         if (millis() - lastMillis >= MF_CUSTOMDEVICE_POLL_MS) {
 #endif
 #if defined(MF_CUSTOMDEVICE_HAS_UPDATE)
@@ -182,7 +182,7 @@ void loop1()
                 CustomDevice::customDevice[i].update();
             }
 #endif
-#if defined(DEBUG2CMDMESSENGER)
+#if defined(MF_CUSTOMDEVICE_POLL_MS)
             lastMillis = millis();
         }
 #endif
