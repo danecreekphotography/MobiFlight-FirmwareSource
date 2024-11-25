@@ -18,6 +18,8 @@ namespace DigInMux
 
     void handlerOnDigInMux(uint8_t eventId, uint8_t channel, const char *name)
     {
+        if (!getBoardReady())
+            return;
         cmdMessenger.sendCmdStart(kDigInMuxChange);
         cmdMessenger.sendCmdArg(name);
         cmdMessenger.sendCmdArg(channel);
