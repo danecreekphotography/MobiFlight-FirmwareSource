@@ -27,7 +27,6 @@ void MFAnalog::attach(uint8_t pin, const char *name, uint8_t sensitivity)
     else if (_pin == 6)
         _pin = A7;
 #endif
-    pinMode(_pin, INPUT_PULLUP); // set pin to input. Could use OUTPUT for analog, but shows the intention :-)
     // Fill averaging buffers with initial reading
     for (uint8_t i = 0; i < ADC_MAX_AVERAGE; i++) {
         readBuffer();
