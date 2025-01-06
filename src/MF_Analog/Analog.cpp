@@ -44,7 +44,11 @@ namespace Analog
         MFAnalog::attachHandler(handlerOnAnalogChange);
         analogRegistered++;
 #ifdef DEBUG2CMDMESSENGER
-        cmdMessenger.sendCmd(kDebug, F("Added analog device "));
+        cmdMessenger.sendCmdStart(kDebug);
+        cmdMessenger.sendCmdArg(F("Added analog device with "));
+        cmdMessenger.sendCmdArg(sizeof(MFAnalog));
+        cmdMessenger.sendCmdArg(F(" byte"));
+        cmdMessenger.sendCmdEnd();
 #endif
     }
 

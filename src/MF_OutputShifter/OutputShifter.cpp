@@ -36,7 +36,11 @@ namespace OutputShifter
         outputShifterRegistered++;
 
 #ifdef DEBUG2CMDMESSENGER
-        cmdMessenger.sendCmd(kDebug, F("Added Output Shifter"));
+        cmdMessenger.sendCmdStart(kDebug);
+        cmdMessenger.sendCmdArg(F("Added Output Shifter with "));
+        cmdMessenger.sendCmdArg(sizeof(MFOutputShifter));
+        cmdMessenger.sendCmdArg(F(" byte"));
+        cmdMessenger.sendCmdEnd();
 #endif
     }
 

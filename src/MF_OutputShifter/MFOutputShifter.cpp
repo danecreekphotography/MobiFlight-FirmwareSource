@@ -42,15 +42,24 @@ void MFOutputShifter::setPins(char *pins, uint8_t value)
 
 bool MFOutputShifter::attach(uint8_t latchPin, uint8_t clockPin, uint8_t dataPin, uint8_t moduleCount)
 {
-    _initialized = true;
+    _initialized  = true;
+#ifdef USE_FAST_IO
+    _latchPin.Port = portOutputRegister(digitalPinToPort(latchPin));
+    _latchPin.Mask = digitalPinToBitMask(latchPin);
+    _clockPin.Port = portOutputRegister(digitalPinToPort(clockPin));
+    _clockPin.Mask = digitalPinToBitMask(clockPin);
+    _dataPin.Port  = portInputRegister(digitalPinToPort(dataPin));
+    _dataPin.Mask  = digitalPinToBitMask(dataPin);
+#else
     _latchPin    = latchPin;
     _clockPin    = clockPin;
     _dataPin     = dataPin;
-    _moduleCount = moduleCount;
+#endif
+    _moduleCount  = moduleCount;
 
-    pinMode(_latchPin, OUTPUT);
-    pinMode(_clockPin, OUTPUT);
-    pinMode(_dataPin, OUTPUT);
+    pinMode(latchPin, OUTPUT);
+    pinMode(clockPin, OUTPUT);
+    pinMode(dataPin, OUTPUT);
 
     if (!FitInMemory(sizeof(uint8_t) * _moduleCount))
         return false;
@@ -77,21 +86,29 @@ void MFOutputShifter::clear()
 
 void MFOutputShifter::update()
 {
-    digitalWrite(_latchPin, LOW);
+    DIGITALWRITE(_latchPin, LOW);
     for (uint8_t i = _moduleCount; i > 0; i--) {
-        shiftOut(_dataPin, _clockPin, MSBFIRST, _lastState[i - 1]); // LSBFIRST, MSBFIRST,
+        for (int8_t j = 7; j >= 0; j--) {
+            DIGITALWRITE(_dataPin, (_lastState[i - 1] & (1 << (j))));
+            DIGITALWRITE(_clockPin, HIGH);
+            DIGITALWRITE(_clockPin, LOW);
+        }
     }
-    digitalWrite(_latchPin, HIGH);
+    DIGITALWRITE(_latchPin, HIGH);
 }
 
 void MFOutputShifter::powerSavingMode(bool state)
 {
     if (state) {
-        digitalWrite(_latchPin, LOW);
+        DIGITALWRITE(_latchPin, LOW);
         for (uint8_t i = _moduleCount; i > 0; i--) {
-            shiftOut(_dataPin, _clockPin, MSBFIRST, 0xFF * MF_LOW);
+            for (int8_t j = 7; j >= 0; j--) {
+                DIGITALWRITE(_dataPin, MF_LOW);
+                DIGITALWRITE(_clockPin, HIGH);
+                DIGITALWRITE(_clockPin, LOW);
+            }
         }
-        digitalWrite(_latchPin, HIGH);
+        DIGITALWRITE(_latchPin, HIGH);
     } else {
         update();
     }

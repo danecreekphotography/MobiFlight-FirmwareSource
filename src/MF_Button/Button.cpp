@@ -42,7 +42,11 @@ namespace Button
         MFButton::attachHandler(handlerButtonOnChange);
         buttonsRegistered++;
 #ifdef DEBUG2CMDMESSENGER
-        cmdMessenger.sendCmd(kDebug, F("Added button ") /* + name */);
+        cmdMessenger.sendCmdStart(kDebug);
+        cmdMessenger.sendCmdArg(F("Added button with "));
+        cmdMessenger.sendCmdArg(sizeof(MFButton));
+        cmdMessenger.sendCmdArg(F(" byte"));
+        cmdMessenger.sendCmdEnd();
 #endif
     }
 

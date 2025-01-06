@@ -19,6 +19,16 @@ MFMuxDriver::MFMuxDriver(void)
 void MFMuxDriver::
     attach(uint8_t Sel0Pin, uint8_t Sel1Pin, uint8_t Sel2Pin, uint8_t Sel3Pin)
 {
+#ifdef USE_FAST_IO
+    _selPinFast[0].Port = portOutputRegister(digitalPinToPort(Sel0Pin));
+    _selPinFast[0].Mask = digitalPinToBitMask(Sel0Pin);
+    _selPinFast[1].Port = portOutputRegister(digitalPinToPort(Sel1Pin));
+    _selPinFast[1].Mask = digitalPinToBitMask(Sel1Pin);
+    _selPinFast[2].Port = portOutputRegister(digitalPinToPort(Sel2Pin));
+    _selPinFast[2].Mask = digitalPinToBitMask(Sel2Pin);
+    _selPinFast[3].Port = portOutputRegister(digitalPinToPort(Sel3Pin));
+    _selPinFast[3].Mask = digitalPinToBitMask(Sel3Pin);
+#endif
     _selPin[0] = Sel0Pin;
     _selPin[1] = Sel1Pin;
     _selPin[2] = Sel2Pin;
@@ -35,9 +45,10 @@ void MFMuxDriver::
 void MFMuxDriver::detach()
 {
     for (uint8_t i = 0; i < 4; i++) {
-        if (_selPin[i] == 0xFF) continue;
-        pinMode(_selPin[i], INPUT_PULLUP);
-        _selPin[i] = 0xFF;
+        if (_selPin[i] != 0xFF) {
+            pinMode(_selPin[i], INPUT_PULLUP);
+            _selPin[i] = 0xFF;
+        }
     }
     bitClear(_flags, MUX_INITED);
 }
@@ -58,7 +69,11 @@ void MFMuxDriver::setChannel(uint8_t value)
 
     _channel = value;
     for (uint8_t i = 0; i < 4; i++) {
-        digitalWrite(_selPin[i], (value & 0x01));
+#ifdef USE_FAST_IO
+        DIGITALWRITE(_selPinFast[i], (value & 0x01));
+#else
+        DIGITALWRITE(_selPin[i], (value & 0x01));
+#endif
         value >>= 1;
     }
 }

@@ -46,7 +46,11 @@ namespace InputShifter
         MFInputShifter::attachHandler(handlerInputShifterOnChange);
         inputShifterRegistered++;
 #ifdef DEBUG2CMDMESSENGER
-        cmdMessenger.sendCmd(kDebug, F("Added input shifter"));
+        cmdMessenger.sendCmdStart(kDebug);
+        cmdMessenger.sendCmdArg(F("Added input shifter with "));
+        cmdMessenger.sendCmdArg(sizeof(MFInputShifter));
+        cmdMessenger.sendCmdArg(F(" byte"));
+        cmdMessenger.sendCmdEnd();
 #endif
     }
 

@@ -62,14 +62,21 @@ MFEncoder::MFEncoder()
 
 void MFEncoder::attach(uint8_t pin1, uint8_t pin2, uint8_t TypeEncoder, const char *name)
 {
-    _pos         = 0;
-    _name        = name;
-    _pin1        = pin1;
-    _pin2        = pin2;
+    _pos  = 0;
+    _name = name;
+#ifdef USE_FAST_IO
+    _pin1.Port = portInputRegister(digitalPinToPort(pin1));
+    _pin1.Mask = digitalPinToBitMask(pin1);
+    _pin2.Port = portInputRegister(digitalPinToPort(pin2));
+    _pin2.Mask = digitalPinToBitMask(pin2);
+#else
+    _pin1     = pin1;
+    _pin2     = pin2;
+#endif
     _encoderType = encoderTypes[TypeEncoder];
 
-    pinMode(_pin1, INPUT_PULLUP);
-    pinMode(_pin2, INPUT_PULLUP);
+    pinMode(pin1, INPUT_PULLUP);
+    pinMode(pin2, INPUT_PULLUP);
     // start with position 0;
     _oldState         = 0;
     _position         = 0;
@@ -127,8 +134,8 @@ void MFEncoder::update()
 
 void MFEncoder::tick(void)
 {
-    bool     sig1      = !digitalRead(_pin1); // to keep backwards compatibility for encoder type digitalRead must be negated
-    bool     sig2      = !digitalRead(_pin2); // to keep backwards compatibility for encoder type digitalRead must be negated
+    bool sig1 = !DIGITALREAD(_pin1); // to keep backwards compatibility for encoder type digitalRead must be negated
+    bool sig2 = !DIGITALREAD(_pin2); // to keep backwards compatibility for encoder type digitalRead must be negated
     int      _speed    = 0;
     uint32_t currentMs = millis();
 

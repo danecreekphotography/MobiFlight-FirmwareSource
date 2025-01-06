@@ -31,7 +31,11 @@ namespace Output
         outputs[outputsRegistered].attach(pin);
         outputsRegistered++;
 #ifdef DEBUG2CMDMESSENGER
-        cmdMessenger.sendCmd(kDebug, F("Added output"));
+        cmdMessenger.sendCmdStart(kDebug);
+        cmdMessenger.sendCmdArg(F("Added output with "));
+        cmdMessenger.sendCmdArg(sizeof(MFOutput));
+        cmdMessenger.sendCmdArg(F(" byte"));
+        cmdMessenger.sendCmdEnd();
 #endif
     }
 

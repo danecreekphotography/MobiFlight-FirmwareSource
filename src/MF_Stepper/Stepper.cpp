@@ -50,7 +50,11 @@ namespace Stepper
         steppersRegistered++;
 
 #ifdef DEBUG2CMDMESSENGER
-        cmdMessenger.sendCmd(kDebug, F("Added stepper"));
+        cmdMessenger.sendCmdStart(kDebug);
+        cmdMessenger.sendCmdArg(F("Added stepper with "));
+        cmdMessenger.sendCmdArg(sizeof(MFStepper));
+        cmdMessenger.sendCmdArg(F(" byte"));
+        cmdMessenger.sendCmdEnd();
 #endif
     }
 

@@ -7,6 +7,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include "MFFastIO.h"
 
 extern "C" {
 // callback functions always follow the signature: void cmd(void);
@@ -34,7 +35,7 @@ public:
 
 private:
     const char *_name;
-    uint8_t     _pin;
+    FASTIO_s    _pin;
     bool        _initialized;
     bool        _state;
 

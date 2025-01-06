@@ -31,7 +31,11 @@ namespace Servos
         servos[servosRegistered].attach(pin, true);
         servosRegistered++;
 #ifdef DEBUG2CMDMESSENGER
-        cmdMessenger.sendCmd(kDebug, F("Added servos"));
+        cmdMessenger.sendCmdStart(kDebug);
+        cmdMessenger.sendCmdArg(F("Added servos with "));
+        cmdMessenger.sendCmdArg(sizeof(MFServo));
+        cmdMessenger.sendCmdArg(F(" byte"));
+        cmdMessenger.sendCmdEnd();
 #endif
     }
 
