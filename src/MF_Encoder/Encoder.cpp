@@ -14,12 +14,12 @@ namespace Encoder
     uint8_t    encodersRegistered = 0;
     uint8_t    maxEncoders        = 0;
 
-    void       handlerOnEncoder(uint8_t eventId, const char *name)
+    void handlerOnEncoder(uint8_t eventId, uint8_t deviceID)
     {
         if (!getBoardReady())
             return;
         cmdMessenger.sendCmdStart(kEncoderChange);
-        cmdMessenger.sendCmdArg(name);
+        cmdMessenger.sendCmdArg(deviceID);
         cmdMessenger.sendCmdArg(eventId);
         cmdMessenger.sendCmdEnd();
     };
@@ -33,12 +33,12 @@ namespace Encoder
         return true;
     }
 
-    void Add(uint8_t pin1, uint8_t pin2, uint8_t encoder_type, char const *name)
+    void Add(uint8_t pin1, uint8_t pin2, uint8_t encoder_type)
     {
         if (encodersRegistered == maxEncoders)
             return;
         encoders[encodersRegistered] = MFEncoder();
-        encoders[encodersRegistered].attach(pin1, pin2, encoder_type, name);
+        encoders[encodersRegistered].attach(pin1, pin2, encoder_type, encodersRegistered);
         MFEncoder::attachHandler(handlerOnEncoder);
         encodersRegistered++;
 #ifdef DEBUG2CMDMESSENGER

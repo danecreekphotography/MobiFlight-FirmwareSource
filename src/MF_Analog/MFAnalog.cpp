@@ -13,11 +13,11 @@ MFAnalog::MFAnalog()
     _initialized = false;
 }
 
-void MFAnalog::attach(uint8_t pin, const char *name, uint8_t sensitivity)
+void MFAnalog::attach(uint8_t pin, uint8_t deviceID, uint8_t sensitivity)
 {
     _sensitivity = sensitivity;
     _pin         = pin;
-    _name        = name;
+    _deviceID    = deviceID;
 #if defined(ARDUINO_AVR_PROMICRO16)
     // ProMicro has a special pin assignment for analog pins
     // therefore reading from A6 and A7 does not work
@@ -52,7 +52,7 @@ void MFAnalog::readChannel(uint8_t alwaysTrigger)
     if (alwaysTrigger || valueHasChanged(newValue)) {
         _lastValue = newValue;
         if (_handler != NULL) {
-            (*_handler)(_lastValue, _name);
+            (*_handler)(_lastValue, _deviceID);
         }
     }
 }

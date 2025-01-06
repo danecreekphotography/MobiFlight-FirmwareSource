@@ -15,13 +15,11 @@ MuxDigInEvent MFDigInMux::_inputHandler = NULL;
 MFDigInMux::MFDigInMux(void)
 {
     _MUX   = NULL;
-    _name  = "MUXDigIn";
     _flags = 0x00;
     clear();
 }
 
-MFDigInMux::MFDigInMux(MFMuxDriver *MUX, const char *name)
-    : _name(name)
+MFDigInMux::MFDigInMux(MFMuxDriver *MUX)
 {
     if (MUX) _MUX = MUX;
     _flags = 0x00;
@@ -34,12 +32,12 @@ void MFDigInMux::setMux(MFMuxDriver *MUX)
 }
 
 // Registers a new MUX input block and configures the driver pins
-void MFDigInMux::attach(uint8_t dataPin, bool halfSize, char const *name)
+void MFDigInMux::attach(uint8_t dataPin, bool halfSize, uint8_t deviceID)
 {
     // if(!_MUX) return;     // no need to check, the object can be set up in advance before the MUX is configured
-    _dataPin = dataPin;
-    _name    = name;
-    _flags   = 0x00;
+    _dataPin  = dataPin;
+    _deviceID = deviceID;
+    _flags    = 0x00;
     if (halfSize) bitSet(_flags, MUX_HALFSIZE);
     pinMode(_dataPin, INPUT_PULLUP);
     bitSet(_flags, MUX_INITED);
@@ -140,7 +138,7 @@ void MFDigInMux::trigger(uint8_t channel, bool state)
 {
     if (!_MUX) return;
     if (!_inputHandler) return;
-    (*_inputHandler)((state ? MuxDigInOnRelease : MuxDigInOnPress), channel, _name);
+    (*_inputHandler)((state ? MuxDigInOnRelease : MuxDigInOnPress), channel, _deviceID);
 }
 
 // Attaches a new event handler for the specified event.

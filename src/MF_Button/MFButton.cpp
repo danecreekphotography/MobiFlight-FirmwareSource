@@ -12,10 +12,10 @@ MFButton::MFButton()
     _initialized = false;
 }
 
-void MFButton::attach(uint8_t pin, const char *name)
+void MFButton::attach(uint8_t pin, uint8_t deviceID)
 {
     _pin  = pin;
-    _name = name;
+    _deviceID = deviceID;
     pinMode(_pin, INPUT_PULLUP);      // set pin to input
     _state       = digitalRead(_pin); // initialize on actual status
     _initialized = true;
@@ -47,7 +47,7 @@ void MFButton::triggerOnPress()
     if (!_initialized)
         return;
     if (_inputHandler && _state == LOW) {
-        (*_inputHandler)(btnOnPress, _name);
+        (*_inputHandler)(btnOnPress, _deviceID);
     }
 }
 
@@ -56,7 +56,7 @@ void MFButton::triggerOnRelease()
     if (!_initialized)
         return;
     if (_inputHandler && _state == HIGH) {
-        (*_inputHandler)(btnOnRelease, _name);
+        (*_inputHandler)(btnOnRelease, _deviceID);
     }
 }
 

@@ -14,12 +14,12 @@ namespace Button
     uint8_t   buttonsRegistered = 0;
     uint8_t   maxButtons        = 0;
 
-    void handlerButtonOnChange(uint8_t eventId, const char *name)
+    void handlerButtonOnChange(uint8_t eventId, uint8_t deviceID)
     {
         if (!getBoardReady())
             return;
         cmdMessenger.sendCmdStart(kButtonChange);
-        cmdMessenger.sendCmdArg(name);
+        cmdMessenger.sendCmdArg(deviceID);
         cmdMessenger.sendCmdArg(eventId);
         cmdMessenger.sendCmdEnd();
     };
@@ -33,12 +33,12 @@ namespace Button
         return true;
     }
 
-    void Add(uint8_t pin, char const *name)
+    void Add(uint8_t pin)
     {
         if (buttonsRegistered == maxButtons)
             return;
         buttons[buttonsRegistered] = MFButton();
-        buttons[buttonsRegistered].attach(pin, name);
+        buttons[buttonsRegistered].attach(pin, buttonsRegistered);
         MFButton::attachHandler(handlerButtonOnChange);
         buttonsRegistered++;
 #ifdef DEBUG2CMDMESSENGER

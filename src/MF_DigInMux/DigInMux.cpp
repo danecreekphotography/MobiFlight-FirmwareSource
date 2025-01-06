@@ -16,12 +16,12 @@ namespace DigInMux
     uint8_t     digInMuxRegistered = 0;
     uint8_t     maxDigInMux        = 0;
 
-    void handlerOnDigInMux(uint8_t eventId, uint8_t channel, const char *name)
+    void handlerOnDigInMux(uint8_t eventId, uint8_t channel, uint8_t deviceID)
     {
         if (!getBoardReady())
             return;
         cmdMessenger.sendCmdStart(kDigInMuxChange);
-        cmdMessenger.sendCmdArg(name);
+        cmdMessenger.sendCmdArg(deviceID);
         cmdMessenger.sendCmdArg(channel);
         cmdMessenger.sendCmdArg(eventId);
         cmdMessenger.sendCmdEnd();
@@ -36,12 +36,12 @@ namespace DigInMux
         return true;
     }
 
-    void Add(uint8_t dataPin, uint8_t nRegs, char const *name)
+    void Add(uint8_t dataPin, uint8_t nRegs)
     {
         if (digInMuxRegistered == maxDigInMux)
             return;
-        digInMux[digInMuxRegistered] = MFDigInMux(&MUX, name);
-        digInMux[digInMuxRegistered].attach(dataPin, (nRegs == 1), name);
+        digInMux[digInMuxRegistered] = MFDigInMux(&MUX);
+        digInMux[digInMuxRegistered].attach(dataPin, (nRegs == 1), digInMuxRegistered);
         MFDigInMux::attachHandler(handlerOnDigInMux);
         digInMuxRegistered++;
 
