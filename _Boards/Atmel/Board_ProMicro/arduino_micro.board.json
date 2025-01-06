@@ -14,7 +14,7 @@
     "EEPROMSize": 440,
     "ExtraConnectionRetry": false,
     "ForceResetOnFirmwareUpdate": true,
-    "MessageSize": 64
+    "MessageSize": 90
   },
   "HardwareIds": [
     "^VID_1B4F&PID_9206",
@@ -27,7 +27,7 @@
     "FirmwareBaseName": "mobiflight_micro",
     "FirmwareExtension": "hex",
     "FriendlyName": "Arduino Pro Micro",
-    "LatestFirmwareVersion": "2.5.2",
+    "LatestFirmwareVersion": "3.0.0",
     "MobiFlightType": "MobiFlight Micro",
     "ResetFirmwareFile": "reset.arduino_promicro_1_0_2.hex"
   },

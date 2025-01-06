@@ -79,6 +79,7 @@ uint16_t       configLengthEEPROM              = 0;
 boolean        configActivated                 = false;
 uint16_t       pNameBuffer                     = 0; // pointer for nameBuffer during reading of config
 const uint16_t configLengthFlash               = sizeof(CustomDeviceConfig);
+bool boardReady                                = false;
 
 void resetConfig();
 void readConfig();
@@ -92,6 +93,11 @@ bool configStoredInFlash()
 bool configStoredInEEPROM()
 {
     return configLengthEEPROM > 0;
+}
+
+bool getBoardReady()
+{
+    return boardReady;
 }
 
 // ************************************************************
@@ -605,6 +611,7 @@ void OnGetConfig()
         }
     }
     cmdMessenger.sendCmdEnd();
+    boardReady = true;
 }
 
 void OnGetInfo()
