@@ -47,16 +47,10 @@ namespace Output
     void OnSet()
     {
         // Read led state argument, interpret string as boolean
-        int pin   = cmdMessenger.readInt16Arg();
+        int output   = cmdMessenger.readInt16Arg();
         int state = cmdMessenger.readInt16Arg();
 
-        // Set led
-        if (state == 0xFF)
-            digitalWrite(pin, MF_HIGH);
-        else if (state == 0x00)
-            digitalWrite(pin, MF_LOW);
-        else
-            analogWrite(pin, state);
+        outputs[output].set(state);
     }
 
     void PowerSave(bool state)

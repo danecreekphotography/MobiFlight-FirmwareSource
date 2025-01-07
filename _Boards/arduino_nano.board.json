@@ -14,7 +14,7 @@
     "EEPROMSize": 286,
     "ExtraConnectionRetry": true,
     "ForceResetOnFirmwareUpdate": false,
-    "MessageSize": 64,
+    "MessageSize": 90,
     "TimeoutForFirmwareUpdate": 60000
   },
   "HardwareIds": [
@@ -33,7 +33,7 @@
     "FirmwareBaseName": "mobiflight_nano",
     "FirmwareExtension": "hex",
     "FriendlyName": "Arduino Nano",
-    "LatestFirmwareVersion": "2.5.2",
+    "LatestFirmwareVersion": "3.0.0",
     "MobiFlightType": "MobiFlight Nano",
     "ResetFirmwareFile": "reset.arduino_uno_1_0_2.hex"
   },

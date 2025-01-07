@@ -18,6 +18,8 @@ namespace Analog
 
     void handlerOnAnalogChange(int value, const char *name)
     {
+        if (!getBoardReady())
+            return;
         cmdMessenger.sendCmdStart(kAnalogChange);
         cmdMessenger.sendCmdArg(name);
         cmdMessenger.sendCmdArg(value);

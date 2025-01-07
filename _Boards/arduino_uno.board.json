@@ -14,7 +14,7 @@
     "EEPROMSize": 286,
     "ExtraConnectionRetry": true,
     "ForceResetOnFirmwareUpdate": false,
-    "MessageSize": 64
+    "MessageSize": 90
   },
   "HardwareIds": [
     "^VID_10C4&PID_EA60",
@@ -32,7 +32,7 @@
     "FriendlyName": "Arduino Uno",
     "FirmwareBaseName": "mobiflight_uno",
     "FirmwareExtension": "hex",
-    "LatestFirmwareVersion": "2.5.2",
+    "LatestFirmwareVersion": "3.0.0",
     "MobiFlightType": "MobiFlight Uno",
     "ResetFirmwareFile": "reset.arduino_uno_1_0_2.hex"
   },

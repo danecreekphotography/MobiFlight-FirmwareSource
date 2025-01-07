@@ -17,6 +17,8 @@ namespace Encoder
 
     void handlerOnEncoder(uint8_t eventId, const char *name)
     {
+        if (!getBoardReady())
+            return;
         cmdMessenger.sendCmdStart(kEncoderChange);
         cmdMessenger.sendCmdArg(name);
         cmdMessenger.sendCmdArg(eventId);

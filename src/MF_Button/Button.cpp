@@ -17,6 +17,8 @@ namespace Button
 
     void handlerButtonOnChange(uint8_t eventId, const char *name)
     {
+        if (!getBoardReady())
+            return;
         cmdMessenger.sendCmdStart(kButtonChange);
         cmdMessenger.sendCmdArg(name);
         cmdMessenger.sendCmdArg(eventId);
