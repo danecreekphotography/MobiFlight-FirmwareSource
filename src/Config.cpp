@@ -514,10 +514,14 @@ void readConfigFromMemory(bool configFromFlash)
 #endif
 
 #if MF_ANALOG_SUPPORT == 1
+        case kTypeAnalogInputDeprecated:
         case kTypeAnalogInput:
             params[0] = readUint(&addrMem, configFromFlash);                              // pin number
             params[1] = readUint(&addrMem, configFromFlash);                              // sensitivity
-            Analog::Add(params[0], &nameBuffer[pNameBuffer], params[1]);                  // MUST be before readName because readName returns the pointer for the NEXT Name
+            if (command == kTypeAnalogInputDeprecated)
+                Analog::Add(params[0], &nameBuffer[pNameBuffer], params[1], true);        // MUST be before readName because readName returns the pointer for the NEXT Name
+            else
+                Analog::Add(params[0], &nameBuffer[pNameBuffer], params[1], false);       // MUST be before readName because readName returns the pointer for the NEXT Name
             copy_success = readName(&addrMem, nameBuffer, &pNameBuffer, configFromFlash); // copy the NULL terminated name to to nameBuffer and set to next free memory location
                                                                                           //    copy_success = readEndCommand(&addrMem, ':');       // once the nameBuffer is not required anymore uncomment this line and delete the line before
             break;
