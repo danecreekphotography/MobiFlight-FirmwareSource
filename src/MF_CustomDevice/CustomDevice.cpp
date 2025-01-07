@@ -25,7 +25,7 @@ namespace CustomDevice
     MFCustomDevice *customDevice;
     uint8_t         customDeviceRegistered = 0;
     uint8_t         maxCustomDevices       = 0;
-#if defined(USE_2ND_CORE)
+#ifdef USE_2ND_CORE
     char payload[SERIAL_RX_BUFFER_SIZE];
 #endif
 
@@ -45,7 +45,7 @@ namespace CustomDevice
         customDevice[customDeviceRegistered] = MFCustomDevice();
         customDevice[customDeviceRegistered].attach(adrPin, adrType, adrConfig, configFromFlash);
         customDeviceRegistered++;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kStatus, F("Added CustomDevice"));
 #endif
     }
@@ -61,7 +61,7 @@ namespace CustomDevice
             customDevice[i].detach();
         }
         customDeviceRegistered = 0;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kStatus, F("Cleared CustomDevice"));
 #endif
     }
@@ -169,20 +169,20 @@ void loop1()
     int16_t messageID;
     char   *payload;
     bool    stopUpdating = false;
-#if defined(MF_CUSTOMDEVICE_POLL_MS)
+#ifdef MF_CUSTOMDEVICE_POLL_MS
     uint32_t lastMillis = 0;
 #endif
 
     while (1) {
-#if defined(MF_CUSTOMDEVICE_POLL_MS)
+#ifdef MF_CUSTOMDEVICE_POLL_MS
         if (millis() - lastMillis >= MF_CUSTOMDEVICE_POLL_MS) {
 #endif
-#if defined(MF_CUSTOMDEVICE_HAS_UPDATE)
+#ifdef MF_CUSTOMDEVICE_HAS_UPDATE
             for (int i = 0; i < CustomDevice::customDeviceRegistered && !stopUpdating; i++) {
                 CustomDevice::customDevice[i].update();
             }
 #endif
-#if defined(MF_CUSTOMDEVICE_POLL_MS)
+#ifdef MF_CUSTOMDEVICE_POLL_MS
             lastMillis = millis();
         }
 #endif

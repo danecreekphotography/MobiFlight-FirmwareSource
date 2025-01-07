@@ -44,7 +44,7 @@ namespace InputShifter
         }
         MFInputShifter::attachHandler(handlerInputShifterOnChange);
         inputShifterRegistered++;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Added input shifter"));
 #endif
     }
@@ -55,7 +55,7 @@ namespace InputShifter
             inputShifter[i].detach();
         }
         inputShifterRegistered = 0;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Cleared input shifter"));
 #endif
     }

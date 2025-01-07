@@ -31,7 +31,7 @@ namespace Output
         outputs[outputsRegistered] = MFOutput();
         outputs[outputsRegistered].attach(pin);
         outputsRegistered++;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Added output"));
 #endif
     }
@@ -39,7 +39,7 @@ namespace Output
     void Clear()
     {
         outputsRegistered = 0;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Cleared outputs"));
 #endif
     }

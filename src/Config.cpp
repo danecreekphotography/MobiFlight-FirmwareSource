@@ -15,37 +15,37 @@
 #include "ArduinoUniqueID.h"
 #endif
 
-#if defined(MF_ANALOG_SUPPORT)
+#ifdef MF_ANALOG_SUPPORT
 #include "Analog.h"
 #endif
-#if defined(MF_INPUT_SHIFTER_SUPPORT)
+#ifdef MF_INPUT_SHIFTER_SUPPORT
 #include "InputShifter.h"
 #endif
-#if defined(MF_SEGMENT_SUPPORT)
+#ifdef MF_SEGMENT_SUPPORT
 #include "LedSegment.h"
 #endif
-#if defined(MF_STEPPER_SUPPORT)
+#ifdef MF_STEPPER_SUPPORT
 #include "Stepper.h"
 #endif
-#if defined(MF_SERVO_SUPPORT)
+#ifdef MF_SERVO_SUPPORT
 #include "Servos.h"
 #endif
-#if defined(MF_LCD_SUPPORT)
+#ifdef MF_LCD_SUPPORT
 #include "LCDDisplay.h"
 #endif
-#if defined(MF_OUTPUT_SHIFTER_SUPPORT)
+#ifdef MF_OUTPUT_SHIFTER_SUPPORT
 #include "OutputShifter.h"
 #endif
-#if defined(MF_MUX_SUPPORT)
+#ifdef MF_MUX_SUPPORT
 #include "MFMuxDriver.h"
 #endif
-#if defined(MF_DIGIN_MUX_SUPPORT)
+#ifdef MF_DIGIN_MUX_SUPPORT
 #include "DigInMux.h"
 #endif
-#if defined(MF_CUSTOMDEVICE_SUPPORT)
+#ifdef MF_CUSTOMDEVICE_SUPPORT
 #include "CustomDevice.h"
 #endif
-#if defined(HAS_CONFIG_IN_FLASH)
+#ifdef HAS_CONFIG_IN_FLASH
 #include "MFCustomDevicesConfig.h"
 #else
 const char CustomDeviceConfig[] PROGMEM = {};
@@ -69,7 +69,7 @@ const uint8_t MEM_OFFSET_SERIAL = MEM_OFFSET_NAME + MEM_LEN_NAME;
 const uint8_t MEM_LEN_SERIAL    = 11;
 const uint8_t MEM_OFFSET_CONFIG = MEM_OFFSET_NAME + MEM_LEN_NAME + MEM_LEN_SERIAL;
 
-#if defined(ARDUINO_ARCH_AVR)
+#ifdef ARDUINO_ARCH_AVR
 char serial[11]; // 3 characters for "SN-",7 characters for "xyz-zyx" plus terminating NULL
 #else
 char serial[3 + UniqueIDsize * 2 + 1]; // 3 characters for "SN-", UniqueID as HEX String, terminating NULL
@@ -120,7 +120,7 @@ bool readconfigLengthEEPROM()
 
 void loadConfig()
 {
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
     cmdMessenger.sendCmd(kDebug, F("Load config"));
 #endif
     readconfigLengthEEPROM();
@@ -130,7 +130,7 @@ void loadConfig()
 
 void OnSetConfig()
 {
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
     cmdMessenger.sendCmd(kDebug, F("Setting config start"));
 #endif
     // A config can be in flash or in EEPROM, but only one option must be used
@@ -153,7 +153,7 @@ void OnSetConfig()
             // connector does not check for status = -1
             cmdMessenger.sendCmd(kStatus, -1);
         }
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Setting config end"));
 #endif
     } else {
@@ -167,13 +167,13 @@ void resetConfig()
     Button::Clear();
     Encoder::Clear();
     Output::Clear();
-#if defined(MF_SEGMENT_SUPPORT)
+#ifdef MF_SEGMENT_SUPPORT
     LedSegment::Clear();
 #endif
-#if defined(MF_SERVO_SUPPORT)
+#ifdef MF_SERVO_SUPPORT
     Servos::Clear();
 #endif
-#if defined(MF_STEPPER_SUPPORT)
+#ifdef MF_STEPPER_SUPPORT
 #if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
     Stepper::stopUpdate2ndCore(true);
 #endif
@@ -182,22 +182,22 @@ void resetConfig()
     Stepper::stopUpdate2ndCore(false);
 #endif
 #endif
-#if defined(MF_LCD_SUPPORT)
+#ifdef MF_LCD_SUPPORT
     LCDDisplay::Clear();
 #endif
-#if defined(MF_ANALOG_SUPPORT)
+#ifdef MF_ANALOG_SUPPORT
     Analog::Clear();
 #endif
-#if defined(MF_OUTPUT_SHIFTER_SUPPORT)
+#ifdef MF_OUTPUT_SHIFTER_SUPPORT
     OutputShifter::Clear();
 #endif
-#if defined(MF_INPUT_SHIFTER_SUPPORT)
+#ifdef MF_INPUT_SHIFTER_SUPPORT
     InputShifter::Clear();
 #endif
-#if defined(MF_DIGIN_MUX_SUPPORT)
+#ifdef MF_DIGIN_MUX_SUPPORT
     DigInMux::Clear();
 #endif
-#if defined(MF_CUSTOMDEVICE_SUPPORT)
+#ifdef MF_CUSTOMDEVICE_SUPPORT
 #if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
     CustomDevice::stopUpdate2ndCore(true);
 #endif
@@ -340,41 +340,41 @@ void InitArrays(uint8_t *numberDevices)
         sendFailureMessage("Button");
     if (!Output::setupArray(numberDevices[kTypeOutput]))
         sendFailureMessage("Output");
-#if defined(MF_SEGMENT_SUPPORT)
+#ifdef MF_SEGMENT_SUPPORT
     if (!LedSegment::setupArray(numberDevices[kTypeLedSegmentDeprecated] + numberDevices[kTypeLedSegmentMulti]))
         sendFailureMessage("7Segment");
 #endif
-#if defined(MF_STEPPER_SUPPORT)
+#ifdef MF_STEPPER_SUPPORT
     if (!Stepper::setupArray(numberDevices[kTypeStepper] + numberDevices[kTypeStepperDeprecated1] + numberDevices[kTypeStepperDeprecated2]))
         sendFailureMessage("Stepper");
 #endif
-#if defined(MF_SERVO_SUPPORT)
+#ifdef MF_SERVO_SUPPORT
     if (!Servos::setupArray(numberDevices[kTypeServo]))
         sendFailureMessage("Servo");
 #endif
     if (!Encoder::setupArray(numberDevices[kTypeEncoder] + numberDevices[kTypeEncoderSingleDetent]))
         sendFailureMessage("Encoders");
-#if defined(MF_LCD_SUPPORT)
+#ifdef MF_LCD_SUPPORT
     if (!LCDDisplay::setupArray(numberDevices[kTypeLcdDisplayI2C]))
         sendFailureMessage("LCD");
 #endif
-#if defined(MF_ANALOG_SUPPORT)
+#ifdef MF_ANALOG_SUPPORT
     if (!Analog::setupArray(numberDevices[kTypeAnalogInput]))
         sendFailureMessage("AnalogIn");
 #endif
-#if defined(MF_OUTPUT_SHIFTER_SUPPORT)
+#ifdef MF_OUTPUT_SHIFTER_SUPPORT
     if (!OutputShifter::setupArray(numberDevices[kTypeOutputShifter]))
         sendFailureMessage("OutputShifter");
 #endif
-#if defined(MF_INPUT_SHIFTER_SUPPORT)
+#ifdef MF_INPUT_SHIFTER_SUPPORT
     if (!InputShifter::setupArray(numberDevices[kTypeInputShifter]))
         sendFailureMessage("InputShifter");
 #endif
-#if defined(MF_DIGIN_MUX_SUPPORT)
+#ifdef MF_DIGIN_MUX_SUPPORT
     if (!DigInMux::setupArray(numberDevices[kTypeDigInMux]))
         sendFailureMessage("DigInMux");
 #endif
-#if defined(MF_CUSTOMDEVICE_SUPPORT)
+#ifdef MF_CUSTOMDEVICE_SUPPORT
     if (!CustomDevice::setupArray(numberDevices[kTypeCustomDevice]))
         sendFailureMessage("CustomDevice");
 #endif
@@ -427,7 +427,7 @@ void readConfigFromMemory(bool configFromFlash)
             copy_success = readEndCommand(&addrMem, ':', configFromFlash); // check EEPROM until end of name
             break;
 
-#if defined(MF_SEGMENT_SUPPORT)
+#ifdef MF_SEGMENT_SUPPORT
         // this is for backwards compatibility
         case kTypeLedSegmentDeprecated:
         // this is the new type
@@ -446,7 +446,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if defined(MF_STEPPER_SUPPORT)
+#ifdef MF_STEPPER_SUPPORT
         case kTypeStepperDeprecated1:
         case kTypeStepperDeprecated2:
         case kTypeStepper:
@@ -478,7 +478,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if defined(MF_SERVO_SUPPORT)
+#ifdef MF_SERVO_SUPPORT
         case kTypeServo:
             params[0] = readUint(&addrMem, configFromFlash); // Pin number
             Servos::Add(params[0]);
@@ -499,7 +499,7 @@ void readConfigFromMemory(bool configFromFlash)
             copy_success = readName(&addrMem, nameBuffer, &pNameBuffer, configFromFlash); // copy the NULL terminated name to nameBuffer and set to next free memory location
             break;
 
-#if defined(MF_LCD_SUPPORT)
+#ifdef MF_LCD_SUPPORT
         case kTypeLcdDisplayI2C:
             params[0] = readUint(&addrMem, configFromFlash); // address
             params[1] = readUint(&addrMem, configFromFlash); // columns
@@ -509,7 +509,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if defined(MF_ANALOG_SUPPORT)
+#ifdef MF_ANALOG_SUPPORT
         case kTypeAnalogInput:
             params[0] = readUint(&addrMem, configFromFlash);                              // pin number
             params[1] = readUint(&addrMem, configFromFlash);                              // sensitivity
@@ -519,7 +519,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if defined(MF_OUTPUT_SHIFTER_SUPPORT)
+#ifdef MF_OUTPUT_SHIFTER_SUPPORT
         case kTypeOutputShifter:
             params[0] = readUint(&addrMem, configFromFlash); // latch Pin
             params[1] = readUint(&addrMem, configFromFlash); // clock Pin
@@ -530,7 +530,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if defined(MF_INPUT_SHIFTER_SUPPORT)
+#ifdef MF_INPUT_SHIFTER_SUPPORT
         case kTypeInputShifter:
             params[0] = readUint(&addrMem, configFromFlash); // latch Pin
             params[1] = readUint(&addrMem, configFromFlash); // clock Pin
@@ -542,7 +542,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if defined(MF_DIGIN_MUX_SUPPORT)
+#ifdef MF_DIGIN_MUX_SUPPORT
         case kTypeDigInMux:
             params[0] = readUint(&addrMem, configFromFlash); // data pin
             // Mux driver section
@@ -559,7 +559,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if defined(MF_CUSTOMDEVICE_SUPPORT)
+#ifdef MF_CUSTOMDEVICE_SUPPORT
         case kTypeCustomDevice: {
             uint16_t adrType = addrMem; // first location of custom Type in EEPROM
             copy_success     = readEndCommand(&addrMem, '.', configFromFlash);
@@ -635,7 +635,7 @@ bool getStatusConfig()
 // ************************************************************
 
 // Generate a serial number only for AVR's
-#if defined(ARDUINO_ARCH_AVR)
+#ifdef ARDUINO_ARCH_AVR
 void generateRandomSerial()
 {
     // To have not always the same starting point for the random generator, millis() are
@@ -661,7 +661,7 @@ void generateRandomSerial()
         randomSerial >>= 4;
     }
     MFeeprom.write_block(MEM_OFFSET_SERIAL, serial, MEM_LEN_SERIAL);
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
     cmdMessenger.sendCmd(kDebug, F("Serial number generated"));
 #endif
 }
@@ -687,7 +687,7 @@ void generateSerial(bool force)
     if (force) {
         // A serial number is forced to generate
         // generate a serial number acc. the old style only for AVR's
-#if defined(ARDUINO_ARCH_AVR)
+#ifdef ARDUINO_ARCH_AVR
         generateRandomSerial();
 #else
         // For other boards always the UniqueID is used.
@@ -708,7 +708,7 @@ void generateSerial(bool force)
         return;
     }
 
-#if defined(ARDUINO_ARCH_AVR)
+#ifdef ARDUINO_ARCH_AVR
     // Coming here no serial number is available (so it's the first start up of an AVR board)
     // or a uniqueID is already generated and saved to the eeprom
     // AVR's are forced to roll back to "old style" serial number

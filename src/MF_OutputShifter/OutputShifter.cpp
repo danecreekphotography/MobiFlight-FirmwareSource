@@ -35,7 +35,7 @@ namespace OutputShifter
         }
         outputShifterRegistered++;
 
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Added Output Shifter"));
 #endif
     }
@@ -47,7 +47,7 @@ namespace OutputShifter
         }
 
         outputShifterRegistered = 0;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Cleared Output Shifter"));
 #endif
     }

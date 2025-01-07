@@ -73,7 +73,7 @@ enum {
     OP_DISPLAYTEST = 15
 };
 
-#if defined(LEDCONTROL_NO_BUF)
+#ifdef LEDCONTROL_NO_BUF
 uint8_t *LedControl::rawdata;
 #endif
 
@@ -221,7 +221,7 @@ void LedControl::clearDisplay(uint8_t addr)
             spiTransfer(addr, i + 1, 0);
         }
     } else {
-#if defined(LEDCONTROL_NO_BUF)
+#ifdef LEDCONTROL_NO_BUF
         for (uint8_t i = 0; i < 8; i++) {
             writeOneDigit(i, 0);
         }
@@ -300,7 +300,7 @@ void LedControl::setPattern(uint8_t addr, uint8_t digit, uint8_t value, bool sen
         // and then just transmit them reversed (from LSb to MSb)
         v <<= 1;
         if (value & 0x80) v |= 0x01;
-#if defined(LEDCONTROL_NO_BUF)
+#ifdef LEDCONTROL_NO_BUF
         writeOneDigit(digit, v);
 #else
         rawdata[(maxUnits - 1) - digit] = v; // Change only the individual affected digit in static buffer
@@ -398,7 +398,7 @@ bool LedControl::writeByte(uint8_t data, bool rvs)
     return ack;
 }
 
-#if defined(LEDCONTROL_NO_BUF)
+#ifdef LEDCONTROL_NO_BUF
 
 void LedControl::writeOneDigit(uint8_t ndigit, uint8_t pattern)
 {
@@ -452,7 +452,7 @@ void LedControl::writeDigits(uint8_t startd, uint8_t len)
 
 #endif
 
-#if defined(LEDCONTROL_EXTENDED)
+#ifdef LEDCONTROL_EXTENDED
 
 void LedControl::showNumber(uint8_t addr, int32_t num, bool isHex, uint8_t dots, bool leading_zero, uint8_t roffset)
 {

@@ -8,32 +8,32 @@
 #include "config.h"
 #include "Button.h"
 #include "Encoder.h"
-#if defined(MF_ANALOG_SUPPORT)
+#ifdef MF_ANALOG_SUPPORT
 #include "Analog.h"
 #endif
-#if defined(MF_INPUT_SHIFTER_SUPPORT)
+#ifdef MF_INPUT_SHIFTER_SUPPORT
 #include "InputShifter.h"
 #endif
 #include "Output.h"
-#if defined(MF_SEGMENT_SUPPORT)
+#ifdef MF_SEGMENT_SUPPORT
 #include "LedSegment.h"
 #endif
-#if defined(MF_STEPPER_SUPPORT)
+#ifdef MF_STEPPER_SUPPORT
 #include "Stepper.h"
 #endif
-#if defined(MF_SERVO_SUPPORT)
+#ifdef MF_SERVO_SUPPORT
 #include "Servos.h"
 #endif
-#if defined(MF_LCD_SUPPORT)
+#ifdef MF_LCD_SUPPORT
 #include "LCDDisplay.h"
 #endif
-#if defined(MF_OUTPUT_SHIFTER_SUPPORT)
+#ifdef MF_OUTPUT_SHIFTER_SUPPORT
 #include "OutputShifter.h"
 #endif
-#if defined(MF_DIGIN_MUX_SUPPORT)
+#ifdef MF_DIGIN_MUX_SUPPORT
 #include "DigInMux.h"
 #endif
-#if defined(MF_CUSTOMDEVICE_SUPPORT)
+#ifdef MF_CUSTOMDEVICE_SUPPORT
 #include "CustomDevice.h"
 #endif
 
@@ -50,7 +50,7 @@ void attachCommandCallbacks()
     // Attach callback methods
     cmdMessenger.attach(OnUnknownCommand);
 
-#if defined(MF_SEGMENT_SUPPORT)
+#ifdef MF_SEGMENT_SUPPORT
     cmdMessenger.attach(kInitModule, LedSegment::OnInitModule);
     cmdMessenger.attach(kSetModule, LedSegment::OnSetModule);
     cmdMessenger.attach(kSetModuleBrightness, LedSegment::OnSetModuleBrightness);
@@ -59,14 +59,14 @@ void attachCommandCallbacks()
 
     cmdMessenger.attach(kSetPin, Output::OnSet);
 
-#if defined(MF_STEPPER_SUPPORT)
+#ifdef MF_STEPPER_SUPPORT
     cmdMessenger.attach(kSetStepper, Stepper::OnSet);
     cmdMessenger.attach(kResetStepper, Stepper::OnReset);
     cmdMessenger.attach(kSetZeroStepper, Stepper::OnSetZero);
     cmdMessenger.attach(kSetStepperSpeedAccel, Stepper::OnSetSpeedAccel);
 #endif
 
-#if defined(MF_SERVO_SUPPORT)
+#ifdef MF_SERVO_SUPPORT
     cmdMessenger.attach(kSetServo, Servos::OnSet);
 #endif
 
@@ -81,19 +81,19 @@ void attachCommandCallbacks()
     cmdMessenger.attach(kTrigger, OnTrigger);
     cmdMessenger.attach(kSetPowerSavingMode, OnSetPowerSavingMode);
 
-#if defined(MF_LCD_SUPPORT)
+#ifdef MF_LCD_SUPPORT
     cmdMessenger.attach(kSetLcdDisplayI2C, LCDDisplay::OnSet);
 #endif
 
-#if defined(MF_OUTPUT_SHIFTER_SUPPORT)
+#ifdef MF_OUTPUT_SHIFTER_SUPPORT
     cmdMessenger.attach(kSetShiftRegisterPins, OutputShifter::OnSet);
 #endif
 
-#if defined(MF_CUSTOMDEVICE_SUPPORT)
+#ifdef MF_CUSTOMDEVICE_SUPPORT
     cmdMessenger.attach(kSetCustomDevice, CustomDevice::OnSet);
 #endif
 
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
     cmdMessenger.sendCmd(kDebug, F("Attached callbacks"));
 #endif
 }
@@ -114,7 +114,7 @@ void OnSetPowerSavingMode()
     // to the earliest possible time. The next time loop() is called in mobiflight.cpp
     // this will cause power saving mode to get turned on.
     if (enablePowerSavingMode) {
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Enabling power saving mode via request"));
 #endif
         lastCommand = 0;
@@ -123,7 +123,7 @@ void OnSetPowerSavingMode()
     // to now. The next time loop() is called in mobiflight.cpp this will cause
     // power saving mode to get turned off.
     else {
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Disabling power saving mode via request"));
 #endif
         lastCommand = millis();
@@ -138,13 +138,13 @@ uint32_t getLastCommandMillis()
 void OnTrigger()
 {
     Button::OnTrigger();
-#if defined(MF_INPUT_SHIFTER_SUPPORT)
+#ifdef MF_INPUT_SHIFTER_SUPPORT
     InputShifter::OnTrigger();
 #endif
-#if defined(MF_DIGIN_MUX_SUPPORT)
+#ifdef MF_DIGIN_MUX_SUPPORT
     DigInMux::OnTrigger();
 #endif
-#if defined(MF_ANALOG_SUPPORT)
+#ifdef MF_ANALOG_SUPPORT
     Analog::OnTrigger();
 #endif
 }

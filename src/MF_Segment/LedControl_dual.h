@@ -36,7 +36,7 @@
 #include <Arduino.h>
 #include <LedSegment.h>
 
-#if defined(__AVR__)
+#ifdef __AVR__
 #include <avr/pgmspace.h>
 #elif defined(ESP8266) || defined(ESP32)
 #include <pgmspace.h>
@@ -63,7 +63,7 @@ private:
     uint8_t _dataPin = TYPE_UNDEFINED;
     uint8_t _clkPin  = TYPE_UNDEFINED;
     uint8_t _csPin   = TYPE_UNDEFINED;
-#if defined(LEDCONTROL_NO_BUF)
+#ifdef LEDCONTROL_NO_BUF
     // For TM, buffer can't be static (= shared): either we are building
     // the extended version (which adds a per-unit buffer instead of the static one)
     // or we are forced to resort to digit-by-digit output
@@ -88,7 +88,7 @@ private:
     void stop(void);
     bool writeByte(uint8_t data, bool rvs = false);
 
-#if defined(LEDCONTROL_NO_BUF)
+#ifdef LEDCONTROL_NO_BUF
     void writeOneDigit(uint8_t ndigit, uint8_t val);
 #else
     // Has buffer available
@@ -150,7 +150,7 @@ public:
     void sendAll(void) { writeBuffer(); };
 #endif
 
-#if defined(LEDCONTROL_EXTENDED)
+#ifdef LEDCONTROL_EXTENDED
     // Display a decimal number, with dot control
     //
     // Display the given argument as a decimal number. The dots between the digits

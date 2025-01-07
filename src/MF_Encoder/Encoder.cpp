@@ -40,7 +40,7 @@ namespace Encoder
         encoders[encodersRegistered].attach(pin1, pin2, encoder_type, name);
         MFEncoder::attachHandler(handlerOnEncoder);
         encodersRegistered++;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Added encoder"));
 #endif
     }
@@ -48,7 +48,7 @@ namespace Encoder
     void Clear()
     {
         encodersRegistered = 0;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Cleared encoders"));
 #endif
     }

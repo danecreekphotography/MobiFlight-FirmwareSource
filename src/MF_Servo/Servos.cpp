@@ -31,7 +31,7 @@ namespace Servos
         servos[servosRegistered] = MFServo();
         servos[servosRegistered].attach(pin, true);
         servosRegistered++;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Added servos"));
 #endif
     }
@@ -42,7 +42,7 @@ namespace Servos
             servos[i].detach();
         }
         servosRegistered = 0;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Cleared servos"));
 #endif
     }

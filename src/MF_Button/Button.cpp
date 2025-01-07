@@ -40,7 +40,7 @@ namespace Button
         buttons[buttonsRegistered].attach(pin, name);
         MFButton::attachHandler(handlerButtonOnChange);
         buttonsRegistered++;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Added button ") /* + name */);
 #endif
     }
@@ -51,7 +51,7 @@ namespace Button
             buttons[i].detach();
         }
         buttonsRegistered = 0;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Cleared buttons"));
 #endif
     }

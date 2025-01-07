@@ -37,7 +37,7 @@ namespace LedSegment
         }
 
         ledSegmentsRegistered++;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Added Led Segment"));
 #endif
     }
@@ -48,7 +48,7 @@ namespace LedSegment
             ledSegments[i].detach();
         }
         ledSegmentsRegistered = 0;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Cleared segments"));
 #endif
     }

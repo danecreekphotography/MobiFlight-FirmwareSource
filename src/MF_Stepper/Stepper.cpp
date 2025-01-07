@@ -17,7 +17,7 @@ namespace Stepper
     MFStepper *steppers;
     uint8_t    steppersRegistered = 0;
     uint8_t    maxSteppers        = 0;
-#if defined(STEPPER_ON_2ND_CORE)
+#ifdef STEPPER_ON_2ND_CORE
     enum {
         FUNC_MOVETO = 1,
         FUNC_ZETZERO,
@@ -50,7 +50,7 @@ namespace Stepper
         // all set
         steppersRegistered++;
 
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Added stepper"));
 #endif
     }
@@ -61,7 +61,7 @@ namespace Stepper
             steppers[i].detach();
         }
         steppersRegistered = 0;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Cleared steppers"));
 #endif
     }

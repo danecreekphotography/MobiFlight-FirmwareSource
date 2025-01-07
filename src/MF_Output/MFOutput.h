@@ -8,7 +8,7 @@
 
 #include <Arduino.h>
 
-#if defined(REVERSED_OUTPUT_OUTPUT)
+#ifdef REVERSED_OUTPUT_OUTPUT
 #define MF_HIGH LOW
 #define MF_LOW  HIGH
 #else

@@ -9,7 +9,7 @@
 #include <Arduino.h>
 #include <new>
 
-#if defined(ARDUINO_ARCH_AVR)
+#ifdef ARDUINO_ARCH_AVR
 uint8_t *allocateMemory(uint16_t size);
 #else
 std::size_t *allocateMemory(uint16_t size);

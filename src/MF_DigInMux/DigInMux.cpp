@@ -44,7 +44,7 @@ namespace DigInMux
         MFDigInMux::attachHandler(handlerOnDigInMux);
         digInMuxRegistered++;
 
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Added digital input MUX"));
 #endif
     }
@@ -55,7 +55,7 @@ namespace DigInMux
             digInMux[i].detach();
         }
         digInMuxRegistered = 0;
-#if defined(DEBUG2CMDMESSENGER)
+#ifdef DEBUG2CMDMESSENGER
         cmdMessenger.sendCmd(kDebug, F("Cleared dig. input Muxes"));
 #endif
     }
