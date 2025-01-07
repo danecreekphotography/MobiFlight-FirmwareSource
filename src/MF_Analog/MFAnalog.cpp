@@ -13,7 +13,7 @@ MFAnalog::MFAnalog()
     _initialized = false;
 }
 
-void MFAnalog::attach(uint8_t pin, const char *name, uint8_t sensitivity)
+void MFAnalog::attach(uint8_t pin, const char *name, uint8_t sensitivity, bool deprecated)
 {
     _sensitivity = sensitivity;
     _pin         = pin;
@@ -27,6 +27,10 @@ void MFAnalog::attach(uint8_t pin, const char *name, uint8_t sensitivity)
     else if (_pin == 6)
         _pin = A7;
 #endif
+    // enabling PullUp makes a nonlinear behaviour if pot is used
+    if (deprecated)
+        pinMode(_pin, INPUT_PULLUP);
+        
     // Fill averaging buffers with initial reading
     for (uint8_t i = 0; i < ADC_MAX_AVERAGE; i++) {
         readBuffer();
