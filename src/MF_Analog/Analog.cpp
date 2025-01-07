@@ -4,11 +4,13 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include "config.h"
+#include "commandmessenger.h"
+#include "allocateMem.h"
 #include "MFAnalog.h"
 #include "Analog.h"
 
-#if MF_ANALOG_SUPPORT == 1
+#ifdef MF_ANALOG_SUPPORT
 namespace Analog
 {
     MFAnalog *analog;

@@ -13,8 +13,8 @@ MFOutput::MFOutput()
 
 void MFOutput::attach(uint8_t pin)
 {
-    _pin   = pin;
-#if defined(ARDUINO_ARCH_RP2040)
+    _pin = pin;
+#ifdef ARDUINO_ARCH_RP2040
     pinMode(_pin, OUTPUT_12MA);
 #else
     pinMode(_pin, OUTPUT);

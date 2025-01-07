@@ -4,7 +4,9 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include "config.h"
+#include "commandmessenger.h"
+#include "allocateMem.h"
 #include "MFEEPROM.h"
 #include "Button.h"
 #include "Encoder.h"
@@ -13,34 +15,34 @@
 #include "ArduinoUniqueID.h"
 #endif
 
-#if MF_ANALOG_SUPPORT == 1
+#ifdef MF_ANALOG_SUPPORT
 #include "Analog.h"
 #endif
-#if MF_INPUT_SHIFTER_SUPPORT == 1
+#ifdef MF_INPUT_SHIFTER_SUPPORT
 #include "InputShifter.h"
 #endif
-#if MF_SEGMENT_SUPPORT == 1
+#ifdef MF_SEGMENT_SUPPORT
 #include "LedSegment.h"
 #endif
-#if MF_STEPPER_SUPPORT == 1
+#ifdef MF_STEPPER_SUPPORT
 #include "Stepper.h"
 #endif
-#if MF_SERVO_SUPPORT == 1
+#ifdef MF_SERVO_SUPPORT
 #include "Servos.h"
 #endif
-#if MF_LCD_SUPPORT == 1
+#ifdef MF_LCD_SUPPORT
 #include "LCDDisplay.h"
 #endif
-#if MF_OUTPUT_SHIFTER_SUPPORT == 1
+#ifdef MF_OUTPUT_SHIFTER_SUPPORT
 #include "OutputShifter.h"
 #endif
-#if MF_MUX_SUPPORT == 1
+#ifdef MF_MUX_SUPPORT
 #include "MFMuxDriver.h"
 #endif
-#if MF_DIGIN_MUX_SUPPORT == 1
+#ifdef MF_DIGIN_MUX_SUPPORT
 #include "DigInMux.h"
 #endif
-#if MF_CUSTOMDEVICE_SUPPORT == 1
+#ifdef MF_CUSTOMDEVICE_SUPPORT
 #include "CustomDevice.h"
 #endif
 #ifdef HAS_CONFIG_IN_FLASH
@@ -67,7 +69,7 @@ const uint8_t MEM_OFFSET_SERIAL = MEM_OFFSET_NAME + MEM_LEN_NAME;
 const uint8_t MEM_LEN_SERIAL    = 11;
 const uint8_t MEM_OFFSET_CONFIG = MEM_OFFSET_NAME + MEM_LEN_NAME + MEM_LEN_SERIAL;
 
-#if defined(ARDUINO_ARCH_AVR)
+#ifdef ARDUINO_ARCH_AVR
 char serial[11]; // 3 characters for "SN-",7 characters for "xyz-zyx" plus terminating NULL
 #else
 char serial[3 + UniqueIDsize * 2 + 1]; // 3 characters for "SN-", UniqueID as HEX String, terminating NULL
@@ -171,13 +173,13 @@ void resetConfig()
     Button::Clear();
     Encoder::Clear();
     Output::Clear();
-#if MF_SEGMENT_SUPPORT == 1
+#ifdef MF_SEGMENT_SUPPORT
     LedSegment::Clear();
 #endif
-#if MF_SERVO_SUPPORT == 1
+#ifdef MF_SERVO_SUPPORT
     Servos::Clear();
 #endif
-#if MF_STEPPER_SUPPORT == 1
+#ifdef MF_STEPPER_SUPPORT
 #if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
     Stepper::stopUpdate2ndCore(true);
 #endif
@@ -186,22 +188,22 @@ void resetConfig()
     Stepper::stopUpdate2ndCore(false);
 #endif
 #endif
-#if MF_LCD_SUPPORT == 1
+#ifdef MF_LCD_SUPPORT
     LCDDisplay::Clear();
 #endif
-#if MF_ANALOG_SUPPORT == 1
+#ifdef MF_ANALOG_SUPPORT
     Analog::Clear();
 #endif
-#if MF_OUTPUT_SHIFTER_SUPPORT == 1
+#ifdef MF_OUTPUT_SHIFTER_SUPPORT
     OutputShifter::Clear();
 #endif
-#if MF_INPUT_SHIFTER_SUPPORT == 1
+#ifdef MF_INPUT_SHIFTER_SUPPORT
     InputShifter::Clear();
 #endif
-#if MF_DIGIN_MUX_SUPPORT == 1
+#ifdef MF_DIGIN_MUX_SUPPORT
     DigInMux::Clear();
 #endif
-#if MF_CUSTOMDEVICE_SUPPORT == 1
+#ifdef MF_CUSTOMDEVICE_SUPPORT
 #if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
     CustomDevice::stopUpdate2ndCore(true);
 #endif
@@ -344,41 +346,41 @@ void InitArrays(uint8_t *numberDevices)
         sendFailureMessage("Button");
     if (!Output::setupArray(numberDevices[kTypeOutput]))
         sendFailureMessage("Output");
-#if MF_SEGMENT_SUPPORT == 1
+#ifdef MF_SEGMENT_SUPPORT
     if (!LedSegment::setupArray(numberDevices[kTypeLedSegmentDeprecated] + numberDevices[kTypeLedSegmentMulti]))
         sendFailureMessage("7Segment");
 #endif
-#if MF_STEPPER_SUPPORT == 1
+#ifdef MF_STEPPER_SUPPORT
     if (!Stepper::setupArray(numberDevices[kTypeStepper] + numberDevices[kTypeStepperDeprecated1] + numberDevices[kTypeStepperDeprecated2]))
         sendFailureMessage("Stepper");
 #endif
-#if MF_SERVO_SUPPORT == 1
+#ifdef MF_SERVO_SUPPORT
     if (!Servos::setupArray(numberDevices[kTypeServo]))
         sendFailureMessage("Servo");
 #endif
     if (!Encoder::setupArray(numberDevices[kTypeEncoder] + numberDevices[kTypeEncoderSingleDetent]))
         sendFailureMessage("Encoders");
-#if MF_LCD_SUPPORT == 1
+#ifdef MF_LCD_SUPPORT
     if (!LCDDisplay::setupArray(numberDevices[kTypeLcdDisplayI2C]))
         sendFailureMessage("LCD");
 #endif
-#if MF_ANALOG_SUPPORT == 1
+#ifdef MF_ANALOG_SUPPORT
     if (!Analog::setupArray(numberDevices[kTypeAnalogInput]))
         sendFailureMessage("AnalogIn");
 #endif
-#if MF_OUTPUT_SHIFTER_SUPPORT == 1
+#ifdef MF_OUTPUT_SHIFTER_SUPPORT
     if (!OutputShifter::setupArray(numberDevices[kTypeOutputShifter]))
         sendFailureMessage("OutputShifter");
 #endif
-#if MF_INPUT_SHIFTER_SUPPORT == 1
+#ifdef MF_INPUT_SHIFTER_SUPPORT
     if (!InputShifter::setupArray(numberDevices[kTypeInputShifter]))
         sendFailureMessage("InputShifter");
 #endif
-#if MF_DIGIN_MUX_SUPPORT == 1
+#ifdef MF_DIGIN_MUX_SUPPORT
     if (!DigInMux::setupArray(numberDevices[kTypeDigInMux]))
         sendFailureMessage("DigInMux");
 #endif
-#if MF_CUSTOMDEVICE_SUPPORT == 1
+#ifdef MF_CUSTOMDEVICE_SUPPORT
     if (!CustomDevice::setupArray(numberDevices[kTypeCustomDevice]))
         sendFailureMessage("CustomDevice");
 #endif
@@ -431,7 +433,7 @@ void readConfigFromMemory(bool configFromFlash)
             copy_success = readEndCommand(&addrMem, ':', configFromFlash); // check EEPROM until end of name
             break;
 
-#if MF_SEGMENT_SUPPORT == 1
+#ifdef MF_SEGMENT_SUPPORT
         // this is for backwards compatibility
         case kTypeLedSegmentDeprecated:
         // this is the new type
@@ -450,7 +452,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if MF_STEPPER_SUPPORT == 1
+#ifdef MF_STEPPER_SUPPORT
         case kTypeStepperDeprecated1:
         case kTypeStepperDeprecated2:
         case kTypeStepper:
@@ -482,7 +484,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if MF_SERVO_SUPPORT == 1
+#ifdef MF_SERVO_SUPPORT
         case kTypeServo:
             params[0] = readUint(&addrMem, configFromFlash); // Pin number
             Servos::Add(params[0]);
@@ -503,7 +505,7 @@ void readConfigFromMemory(bool configFromFlash)
             copy_success = readName(&addrMem, nameBuffer, &pNameBuffer, configFromFlash); // copy the NULL terminated name to nameBuffer and set to next free memory location
             break;
 
-#if MF_LCD_SUPPORT == 1
+#ifdef MF_LCD_SUPPORT
         case kTypeLcdDisplayI2C:
             params[0] = readUint(&addrMem, configFromFlash); // address
             params[1] = readUint(&addrMem, configFromFlash); // columns
@@ -513,7 +515,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if MF_ANALOG_SUPPORT == 1
+#ifdef MF_ANALOG_SUPPORT
         case kTypeAnalogInput:
             params[0] = readUint(&addrMem, configFromFlash);                              // pin number
             params[1] = readUint(&addrMem, configFromFlash);                              // sensitivity
@@ -523,7 +525,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if MF_OUTPUT_SHIFTER_SUPPORT == 1
+#ifdef MF_OUTPUT_SHIFTER_SUPPORT
         case kTypeOutputShifter:
             params[0] = readUint(&addrMem, configFromFlash); // latch Pin
             params[1] = readUint(&addrMem, configFromFlash); // clock Pin
@@ -534,7 +536,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if MF_INPUT_SHIFTER_SUPPORT == 1
+#ifdef MF_INPUT_SHIFTER_SUPPORT
         case kTypeInputShifter:
             params[0] = readUint(&addrMem, configFromFlash); // latch Pin
             params[1] = readUint(&addrMem, configFromFlash); // clock Pin
@@ -546,7 +548,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if MF_DIGIN_MUX_SUPPORT == 1
+#ifdef MF_DIGIN_MUX_SUPPORT
         case kTypeDigInMux:
             params[0] = readUint(&addrMem, configFromFlash); // data pin
             // Mux driver section
@@ -563,7 +565,7 @@ void readConfigFromMemory(bool configFromFlash)
             break;
 #endif
 
-#if MF_CUSTOMDEVICE_SUPPORT == 1
+#ifdef MF_CUSTOMDEVICE_SUPPORT
         case kTypeCustomDevice: {
             uint16_t adrType = addrMem; // first location of custom Type in EEPROM
             copy_success     = readEndCommand(&addrMem, '.', configFromFlash);
@@ -640,7 +642,7 @@ bool getStatusConfig()
 // ************************************************************
 
 // Generate a serial number only for AVR's
-#if defined(ARDUINO_ARCH_AVR)
+#ifdef ARDUINO_ARCH_AVR
 void generateRandomSerial()
 {
     // To have not always the same starting point for the random generator, millis() are
@@ -692,7 +694,7 @@ void generateSerial(bool force)
     if (force) {
         // A serial number is forced to generate
         // generate a serial number acc. the old style only for AVR's
-#if defined(ARDUINO_ARCH_AVR)
+#ifdef ARDUINO_ARCH_AVR
         generateRandomSerial();
 #else
         // For other boards always the UniqueID is used.
@@ -713,7 +715,7 @@ void generateSerial(bool force)
         return;
     }
 
-#if defined(ARDUINO_ARCH_AVR)
+#ifdef ARDUINO_ARCH_AVR
     // Coming here no serial number is available (so it's the first start up of an AVR board)
     // or a uniqueID is already generated and saved to the eeprom
     // AVR's are forced to roll back to "old style" serial number

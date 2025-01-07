@@ -45,8 +45,7 @@ void MFLCDDisplay::powerSavingMode(bool state)
     if (state) {
         _lcdDisplay.noBacklight();
         _lcdDisplay.noDisplay();
-    }
-    else {
+    } else {
         _lcdDisplay.backlight();
         _lcdDisplay.display();
     }

@@ -23,7 +23,7 @@ public:
 
 private:
     LedControl _ledControl;
-    uint8_t       _moduleCount;
+    uint8_t    _moduleCount;
 };
 
 // MFSegments.h

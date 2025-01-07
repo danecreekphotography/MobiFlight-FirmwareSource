@@ -4,7 +4,9 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include "config.h"
+#include "commandmessenger.h"
+#include "allocateMem.h"
 #include "MFButton.h"
 #include "Button.h"
 

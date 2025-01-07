@@ -22,8 +22,7 @@
 // non-relevant arguments (particularly: <addr> for TM's) are ignored.
 // A few methods (mostly for internal use) have been added.
 
-#ifndef __LEDCONTROL_DUAL__H__
-#define __LEDCONTROL_DUAL__H__
+#pragma once
 
 // This constant reduces buffer usage: a single (static) 16-byte buffer
 // is used for all objects. However, for TM1637s, data is written
@@ -34,8 +33,6 @@
 // (as opposite to writing individual chars).
 #define LEDCONTROL_EXTENDED
 
-#include <stdint.h>
-// #include <inttypes.h>
 #include <Arduino.h>
 #include <LedSegment.h>
 
@@ -80,9 +77,9 @@ private:
     void    setPattern(uint8_t addr, uint8_t digit, uint8_t value, bool sendNow = true);
 
     // MAX-specific
-    uint8_t *digitBuffer;   // each digit must be stored in a buffer to be able to set single segments
-    void setScanLimit(uint8_t addr, uint8_t limit);
-    void spiTransfer(uint8_t addr, uint8_t opcode, uint8_t data);
+    uint8_t *digitBuffer; // each digit must be stored in a buffer to be able to set single segments
+    void     setScanLimit(uint8_t addr, uint8_t limit);
+    void     spiTransfer(uint8_t addr, uint8_t opcode, uint8_t data);
 
     // TM-specific
     // uint8_t dpSet = 0;
@@ -100,7 +97,7 @@ private:
 #endif
 
 public:
-    LedControl(){};
+    LedControl() {};
 
     bool begin(uint8_t type, uint8_t dataPin, uint8_t clkPin, uint8_t csPin, uint8_t numDevices = 1);
 
@@ -185,5 +182,3 @@ public:
 
 #endif
 };
-
-#endif //!__LEDCONTROL_DUAL__H__

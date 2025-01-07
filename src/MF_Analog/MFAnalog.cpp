@@ -18,7 +18,7 @@ void MFAnalog::attach(uint8_t pin, const char *name, uint8_t sensitivity)
     _sensitivity = sensitivity;
     _pin         = pin;
     _name        = name;
-#if defined(ARDUINO_AVR_PROMICRO16)
+#ifdef ARDUINO_AVR_PROMICRO16
     // ProMicro has a special pin assignment for analog pins
     // therefore reading from A6 and A7 does not work
     // via "digital" pins. See also pins_arduino.h
@@ -33,7 +33,7 @@ void MFAnalog::attach(uint8_t pin, const char *name, uint8_t sensitivity)
         readBuffer();
     }
     // and set initial value from buffers
-    _lastValue = ADC_Average_Total >> ADC_MAX_AVERAGE_LOG2;
+    _lastValue   = ADC_Average_Total >> ADC_MAX_AVERAGE_LOG2;
     _initialized = true;
 }
 
@@ -68,9 +68,9 @@ void MFAnalog::retrigger()
 }
 
 void MFAnalog::readBuffer()
-{                          
+{
     if (!_initialized)
-        return;                                 // read ADC and calculate floating average, call it every ~10ms
+        return;                                             // read ADC and calculate floating average, call it every ~10ms
     ADC_Average_Total -= ADC_Buffer[(ADC_Average_Pointer)]; // subtract oldest value to save the newest value
     ADC_Buffer[ADC_Average_Pointer] = analogRead(_pin);     // store read in, must be subtracted in next loop
     ADC_Average_Total += ADC_Buffer[ADC_Average_Pointer];   // add read in for floating average

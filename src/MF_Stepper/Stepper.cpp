@@ -4,7 +4,8 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include "commandmessenger.h"
+#include "allocateMem.h"
 #include "MFStepper.h"
 #include "Stepper.h"
 #if defined(STEPPER_ON_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
@@ -16,7 +17,7 @@ namespace Stepper
     MFStepper *steppers;
     uint8_t    steppersRegistered = 0;
     uint8_t    maxSteppers        = 0;
-#if defined(STEPPER_ON_2ND_CORE)
+#ifdef STEPPER_ON_2ND_CORE
     enum {
         FUNC_MOVETO = 1,
         FUNC_ZETZERO,

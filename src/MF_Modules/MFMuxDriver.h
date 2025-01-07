@@ -16,8 +16,8 @@ class MFMuxDriver
 {
 public:
     MFMuxDriver(void);
-    void    attach(uint8_t Sel0Pin, uint8_t Sel1Pin, uint8_t Sel2Pin, uint8_t Sel3Pin);
-    void    detach();
+    void attach(uint8_t Sel0Pin, uint8_t Sel1Pin, uint8_t Sel2Pin, uint8_t Sel3Pin);
+    void detach();
 
     // void setChannelOpt(uint8_t mode);
     void    setChannel(uint8_t value);

@@ -1,4 +1,12 @@
-#include "mobiflight.h"
+//
+// CustomDevice.cpp
+//
+// (C) MobiFlight Project 2022
+//
+
+#include "commandmessenger.h"
+#include "allocateMem.h"
+#include "commandmessenger.h"
 #include "CustomDevice.h"
 #include "MFCustomDevice.h"
 #if defined(USE_2ND_CORE) && defined(ARDUINO_ARCH_RP2040)
@@ -17,7 +25,7 @@ namespace CustomDevice
     MFCustomDevice *customDevice;
     uint8_t         customDeviceRegistered = 0;
     uint8_t         maxCustomDevices       = 0;
-#if defined(USE_2ND_CORE)
+#ifdef USE_2ND_CORE
     char payload[SERIAL_RX_BUFFER_SIZE];
 #endif
 
@@ -169,7 +177,7 @@ void loop1()
 #ifdef MF_CUSTOMDEVICE_POLL_MS
         if (millis() - lastMillis >= MF_CUSTOMDEVICE_POLL_MS) {
 #endif
-#if defined(MF_CUSTOMDEVICE_HAS_UPDATE)
+#ifdef MF_CUSTOMDEVICE_HAS_UPDATE
             for (int i = 0; i < CustomDevice::customDeviceRegistered && !stopUpdating; i++) {
                 CustomDevice::customDevice[i].update();
             }

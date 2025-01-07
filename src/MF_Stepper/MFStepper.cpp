@@ -4,7 +4,8 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include "allocateMem.h"
+#include "commandmessenger.h"
 #include "MFStepper.h"
 
 enum { // enumeration for stepper mode
@@ -97,7 +98,7 @@ void MFStepper::moveTo(long newPosition)
             _inMove = MOVE_CCW;
         if (_inMove == MOVE_CCW && newPosition > currentPosition && newPosition > _targetPos)
             _inMove = MOVE_CW;
-        
+
         _stepper->moveTo(newPosition + _backlash * _inMove);
         _targetPos = newPosition;
     }

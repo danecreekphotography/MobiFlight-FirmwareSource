@@ -4,20 +4,21 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include "allocateMem.h"
+#include "commandmessenger.h"
 
-#if defined (ARDUINO_ARCH_AVR)
-uint8_t     deviceBuffer[MF_MAX_DEVICEMEM] = {0};
+#ifdef ARDUINO_ARCH_AVR
+uint8_t deviceBuffer[MF_MAX_DEVICEMEM] = {0};
 #else
-std::size_t    deviceBuffer[MF_MAX_DEVICEMEM] = {0};
+std::size_t deviceBuffer[MF_MAX_DEVICEMEM] = {0};
 #endif
 
-uint16_t nextPointer                    = 0;
+uint16_t nextPointer = 0;
 
-#if defined (ARDUINO_ARCH_AVR)
-uint8_t     *allocateMemory(uint16_t size)
+#ifdef ARDUINO_ARCH_AVR
+uint8_t *allocateMemory(uint16_t size)
 #else
-std::size_t    *allocateMemory(uint16_t size)
+std::size_t *allocateMemory(uint16_t size)
 #endif
 {
     uint16_t actualPointer = nextPointer;

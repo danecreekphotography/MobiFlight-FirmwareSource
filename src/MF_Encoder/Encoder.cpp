@@ -4,7 +4,9 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include "config.h"
+#include "commandmessenger.h"
+#include "allocateMem.h"
 #include "MFEncoder.h"
 #include "Encoder.h"
 
@@ -14,7 +16,7 @@ namespace Encoder
     uint8_t    encodersRegistered = 0;
     uint8_t    maxEncoders        = 0;
 
-    void       handlerOnEncoder(uint8_t eventId, const char *name)
+    void handlerOnEncoder(uint8_t eventId, const char *name)
     {
         if (!getBoardReady())
             return;

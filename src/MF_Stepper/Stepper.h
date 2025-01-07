@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <Arduino.h>
+
 namespace Stepper
 {
     bool setupArray(uint16_t count);

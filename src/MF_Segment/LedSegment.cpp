@@ -4,7 +4,8 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include "commandmessenger.h"
+#include "allocateMem.h"
 #include "MFSegments.h"
 #include "LedSegment.h"
 
@@ -30,8 +31,7 @@ namespace LedSegment
 
         ledSegments[ledSegmentsRegistered] = MFSegments();
 
-        if (!ledSegments[ledSegmentsRegistered].attach(type, dataPin, csPin, clkPin, numDevices, brightness))
-        {
+        if (!ledSegments[ledSegmentsRegistered].attach(type, dataPin, csPin, clkPin, numDevices, brightness)) {
             cmdMessenger.sendCmd(kStatus, F("Led Segment array does not fit into Memory"));
             return;
         }
@@ -88,10 +88,10 @@ namespace LedSegment
 
     void OnSetModuleSingleSegment()
     {
-        uint8_t module     = (uint8_t)cmdMessenger.readInt16Arg();
-        uint8_t subModule  = (uint8_t)cmdMessenger.readInt16Arg();
-        char *segment      = cmdMessenger.readStringArg();              // 0 to 63, multiple segments deliminited by '|'
-        uint8_t on_off     = (uint8_t)cmdMessenger.readInt16Arg();      // 0 or 1
+        uint8_t module    = (uint8_t)cmdMessenger.readInt16Arg();
+        uint8_t subModule = (uint8_t)cmdMessenger.readInt16Arg();
+        char   *segment   = cmdMessenger.readStringArg();         // 0 to 63, multiple segments deliminited by '|'
+        uint8_t on_off    = (uint8_t)cmdMessenger.readInt16Arg(); // 0 or 1
 
         char *pinTokens = strtok(segment, "|");
         while (pinTokens != 0) {
@@ -100,7 +100,7 @@ namespace LedSegment
             pinTokens = strtok(0, "|");
         }
     }
-    
+
 } // namespace
 
 // LedSegment.cpp

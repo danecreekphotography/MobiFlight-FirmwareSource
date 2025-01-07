@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <Arduino.h>
+
 namespace OutputShifter
 {
     bool setupArray(uint16_t count);

@@ -38,7 +38,7 @@ enum {
 
 typedef struct {
     // Detent positions in the quadrature (by value, not position)
-    bool    detents[4];
+    bool detents[4];
 
     // Bit shift to apply given the detent resolution of this encoder.
     //
@@ -56,11 +56,11 @@ public:
     void        attach(uint8_t pin1, uint8_t pin2, uint8_t TypeEncoder, const char *name = "Encoder");
     void        update();
     // call this function every some milliseconds or by using an interrupt for handling state changes of the rotary encoder.
-    void        tick(void);
+    void tick(void);
     // retrieve the current position
-    int16_t     getPosition();
+    int16_t getPosition();
     // adjust the current position
-    void        setPosition(int16_t newPosition);
+    void setPosition(int16_t newPosition);
 
 private:
     static encoderEvent _handler;

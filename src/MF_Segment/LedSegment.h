@@ -6,8 +6,10 @@
 
 #pragma once
 
+#include <Arduino.h>
+
 namespace LedSegment
-{ 
+{
     enum {
         TYPE_MAX72XX        = 0,
         TYPE_TM1637_4DIGITS = 0xFD,

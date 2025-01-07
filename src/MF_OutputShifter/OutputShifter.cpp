@@ -4,7 +4,8 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
+#include "commandmessenger.h"
+#include "allocateMem.h"
 #include "MFOutputShifter.h"
 #include "OutputShifter.h"
 
@@ -18,7 +19,7 @@ namespace OutputShifter
     {
         if (!FitInMemory(sizeof(MFOutputShifter) * count))
             return false;
-        outputShifter   = new (allocateMemory(sizeof(MFOutputShifter) * count)) MFOutputShifter;
+        outputShifter    = new (allocateMemory(sizeof(MFOutputShifter) * count)) MFOutputShifter;
         maxOutputShifter = count;
         return true;
     }
@@ -28,8 +29,7 @@ namespace OutputShifter
         if (outputShifterRegistered == maxOutputShifter)
             return;
         outputShifter[outputShifterRegistered] = MFOutputShifter();
-        if (!outputShifter[outputShifterRegistered].attach(latchPin, clockPin, dataPin, modules))
-        {
+        if (!outputShifter[outputShifterRegistered].attach(latchPin, clockPin, dataPin, modules)) {
             cmdMessenger.sendCmd(kStatus, F("OutputShifter array does not fit into Memory"));
             return;
         }

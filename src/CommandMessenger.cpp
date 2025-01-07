@@ -4,36 +4,36 @@
 // (C) MobiFlight Project 2022
 //
 
-#include "mobiflight.h"
-
+#include "commandmessenger.h"
+#include "config.h"
 #include "Button.h"
 #include "Encoder.h"
-#if MF_ANALOG_SUPPORT == 1
+#ifdef MF_ANALOG_SUPPORT
 #include "Analog.h"
 #endif
-#if MF_INPUT_SHIFTER_SUPPORT == 1
+#ifdef MF_INPUT_SHIFTER_SUPPORT
 #include "InputShifter.h"
 #endif
 #include "Output.h"
-#if MF_SEGMENT_SUPPORT == 1
+#ifdef MF_SEGMENT_SUPPORT
 #include "LedSegment.h"
 #endif
-#if MF_STEPPER_SUPPORT == 1
+#ifdef MF_STEPPER_SUPPORT
 #include "Stepper.h"
 #endif
-#if MF_SERVO_SUPPORT == 1
+#ifdef MF_SERVO_SUPPORT
 #include "Servos.h"
 #endif
-#if MF_LCD_SUPPORT == 1
+#ifdef MF_LCD_SUPPORT
 #include "LCDDisplay.h"
 #endif
-#if MF_OUTPUT_SHIFTER_SUPPORT == 1
+#ifdef MF_OUTPUT_SHIFTER_SUPPORT
 #include "OutputShifter.h"
 #endif
-#if MF_DIGIN_MUX_SUPPORT == 1
+#ifdef MF_DIGIN_MUX_SUPPORT
 #include "DigInMux.h"
 #endif
-#if MF_CUSTOMDEVICE_SUPPORT == 1
+#ifdef MF_CUSTOMDEVICE_SUPPORT
 #include "CustomDevice.h"
 #endif
 
@@ -50,7 +50,7 @@ void attachCommandCallbacks()
     // Attach callback methods
     cmdMessenger.attach(OnUnknownCommand);
 
-#if MF_SEGMENT_SUPPORT == 1
+#ifdef MF_SEGMENT_SUPPORT
     cmdMessenger.attach(kInitModule, LedSegment::OnInitModule);
     cmdMessenger.attach(kSetModule, LedSegment::OnSetModule);
     cmdMessenger.attach(kSetModuleBrightness, LedSegment::OnSetModuleBrightness);
@@ -59,14 +59,14 @@ void attachCommandCallbacks()
 
     cmdMessenger.attach(kSetPin, Output::OnSet);
 
-#if MF_STEPPER_SUPPORT == 1
+#ifdef MF_STEPPER_SUPPORT
     cmdMessenger.attach(kSetStepper, Stepper::OnSet);
     cmdMessenger.attach(kResetStepper, Stepper::OnReset);
     cmdMessenger.attach(kSetZeroStepper, Stepper::OnSetZero);
     cmdMessenger.attach(kSetStepperSpeedAccel, Stepper::OnSetSpeedAccel);
 #endif
 
-#if MF_SERVO_SUPPORT == 1
+#ifdef MF_SERVO_SUPPORT
     cmdMessenger.attach(kSetServo, Servos::OnSet);
 #endif
 
@@ -81,15 +81,15 @@ void attachCommandCallbacks()
     cmdMessenger.attach(kTrigger, OnTrigger);
     cmdMessenger.attach(kSetPowerSavingMode, OnSetPowerSavingMode);
 
-#if MF_LCD_SUPPORT == 1
+#ifdef MF_LCD_SUPPORT
     cmdMessenger.attach(kSetLcdDisplayI2C, LCDDisplay::OnSet);
 #endif
 
-#if MF_OUTPUT_SHIFTER_SUPPORT == 1
+#ifdef MF_OUTPUT_SHIFTER_SUPPORT
     cmdMessenger.attach(kSetShiftRegisterPins, OutputShifter::OnSet);
 #endif
 
-#if MF_CUSTOMDEVICE_SUPPORT == 1
+#ifdef MF_CUSTOMDEVICE_SUPPORT
     cmdMessenger.attach(kSetCustomDevice, CustomDevice::OnSet);
 #endif
 
@@ -138,13 +138,13 @@ uint32_t getLastCommandMillis()
 void OnTrigger()
 {
     Button::OnTrigger();
-#if MF_INPUT_SHIFTER_SUPPORT == 1
+#ifdef MF_INPUT_SHIFTER_SUPPORT
     InputShifter::OnTrigger();
 #endif
-#if MF_DIGIN_MUX_SUPPORT == 1
+#ifdef MF_DIGIN_MUX_SUPPORT
     DigInMux::OnTrigger();
 #endif
-#if MF_ANALOG_SUPPORT == 1
+#ifdef MF_ANALOG_SUPPORT
     Analog::OnTrigger();
 #endif
 }
