@@ -4,6 +4,7 @@
 // (C) MobiFlight Project 2022
 //
 
+#include "config.h"
 #include "commandmessenger.h"
 #include "allocateMem.h"
 #include "MFInputShifter.h"
