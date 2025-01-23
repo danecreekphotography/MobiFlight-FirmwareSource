@@ -1,5 +1,6 @@
 Import("env")
 import os, zipfile, shutil
+import fileinput
 from pathlib import Path
 
 # Get the version number from the build environment.
@@ -38,6 +39,13 @@ def copy_fw_files (source, target, env):
     file_extension = '.json'
     copy_files_by_extension(board_folder, build_path_json, file_extension)
 
+    # set FW version within boad.json files
+    replacements = {
+        "0.0.1": firmware_version
+    }
+    for file_path in build_path_json.rglob("*.json"):
+        replace_in_file(file_path, replacements)
+
     # Create ZIP file and add files from distrubution folder
     zip_file_path = distrubution_path + '/' + zip_file_name + '_' + firmware_version + '.zip'
     createZIP(build_path, zip_file_path, zip_file_name)
@@ -63,6 +71,18 @@ def createZIP(original_folder_path, zip_file_path, new_folder_name):
                 new_path = os.path.join(new_folder_name, os.path.relpath(os.path.join(root, file), original_folder_path))
                 # Add the file to the ZIP file
                 zipf.write(os.path.join(root, file), new_path)
+
+
+def replace_in_file(file_path, replacements):
+    """Replace all keys in `replacements` with their values in the given file."""
+    with open(file_path, "r", encoding="utf-8") as file:
+        content = file.read()
+
+    for old, new in replacements.items():
+        content = content.replace(old, new)
+
+    with open(file_path, "w", encoding="utf-8") as file:
+        file.write(content)
 
 
 env.AddPostAction("$BUILD_DIR/${PROGNAME}.hex", copy_fw_files)
