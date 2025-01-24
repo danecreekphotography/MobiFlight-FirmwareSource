@@ -11,10 +11,10 @@ firmware_version = firmware_version.lstrip("v")
 firmware_version = firmware_version.strip(".")
 
 zip_file_name = 'Mobiflight-Connector'
-build_path = Path()'./_build')
-build_path_fw = Path(build_path + '/firmware')
-build_path_json = Path(build_path + '/Boards')
-distrubution_path = Path('./_dist')
+build_path = Path('./_build')
+build_path_fw = build_path / 'firmware'
+build_path_json = build_path / 'Boards'
+distrubution_path = './_dist'
 board_folder = ['./_Boards/Atmel', './_Boards/RaspberryPi']
 
 def copy_fw_files (source, target, env):
